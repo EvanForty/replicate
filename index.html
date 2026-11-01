@@ -1,0 +1,1139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Replicate: sequence DNA, engineer organisms, replicate tokens</title>
+<meta name="description" content="Replicate is a Solana launchpad of autonomous biolab NFTs that engineer digital organisms, launch them as coins on pump.fun and replicate the successful ones into new generations.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/logo.png">
+<meta name="theme-color" content="#070907">
+<meta property="og:title" content="Replicate: sequence DNA, engineer organisms, replicate tokens">
+<meta property="og:description" content="Autonomous biolab NFTs that engineer digital organisms, launch them as coins on pump.fun and replicate the successful ones.">
+<meta property="og:image" content="/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=DM+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
+<style>
+:root{
+  --bg:#EEF3EC;--panel:#FFFFFF;--ink:#0D140C;--soft:#3C4A3A;--mute:#6B7A68;--rule:#D3DED0;--edge:#0D140C;--frame:#0D140C;
+  --green:#3DDB1E;--green-ink:#1A7A0C;--tile:#070907;
+  --grid:rgba(13,20,12,.045);--stripe:rgba(13,20,12,.035);
+  --f-head:'Unbounded','Arial Black',sans-serif;
+  --f-ui:'DM Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --f-mono:'Spline Sans Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#070907;--panel:#0F130F;--ink:#EAF2E8;--soft:#B4C2B1;--mute:#7B8A78;--rule:#1F271F;--edge:#EAF2E8;--frame:#2F3B2F;
+    --green:#4CFF2E;--green-ink:#6BFF52;
+    --grid:rgba(255,255,255,.03);--stripe:rgba(255,255,255,.035);color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#070907;--panel:#0F130F;--ink:#EAF2E8;--soft:#B4C2B1;--mute:#7B8A78;--rule:#1F271F;--edge:#EAF2E8;--frame:#2F3B2F;
+  --green:#4CFF2E;--green-ink:#6BFF52;
+  --grid:rgba(255,255,255,.03);--stripe:rgba(255,255,255,.035);color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background-color:var(--bg);color:var(--ink);font:400 15.5px/1.55 var(--f-ui);
+  background-image:radial-gradient(var(--grid) 1.2px,transparent 1.4px);background-size:18px 18px;-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px dashed var(--green-ink);outline-offset:3px}
+.wrap{max-width:1420px;margin:0 auto;padding:16px}
+.panel{background:var(--panel);border:1.5px solid var(--frame)}
+.ph{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0;padding:13px 18px;border-bottom:1px solid var(--rule);font:500 11.5px/1.2 var(--f-mono);letter-spacing:.06em;text-transform:uppercase}
+.ph small{font-weight:400;color:var(--mute);letter-spacing:.03em}
+.ph .pix{height:18px;width:auto} .ph .tile{width:22px;padding:1px;flex:none}
+.ph .end{margin-left:auto}
+.pad{padding:18px}
+.tag{display:inline-block;font:500 10.5px/1 var(--f-mono);letter-spacing:.05em;padding:5px 7px;background:var(--ink);color:var(--bg);text-transform:uppercase}
+.tag.green{background:var(--green);color:#071206}
+.tag.ghost{background:transparent;color:var(--soft);border:1px solid var(--rule)}
+.pix rect{fill:var(--ink)} .pix .g{fill:var(--green)}
+.small{font-size:13px;color:var(--soft)}
+.warn{color:#B42318}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .warn{color:#FF9B8C}}
+:root[data-theme="dark"] .warn{color:#FF9B8C}
+.tile{background:var(--tile);display:block}
+.lab{display:block;width:100%;height:auto}
+
+/* header */
+.top{margin-bottom:16px}
+.nav{display:grid;grid-template-columns:auto 1fr auto}
+.brand{display:flex;align-items:center;gap:12px;padding:8px 18px;border-right:1px solid var(--rule);text-decoration:none}
+.brand .tile{width:46px;padding:3px;flex:none}
+.brand b{display:block;font:900 22px/1 var(--f-head);letter-spacing:.01em;text-transform:uppercase}
+.brand small{display:block;margin-top:6px;font:400 10.5px/1 var(--f-mono);color:var(--mute);letter-spacing:.05em}
+.tabs{display:grid;grid-template-columns:repeat(7,minmax(96px,1fr));overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:15px 8px 12px;border-right:1px solid var(--rule);text-decoration:none;color:var(--soft);font:400 10.5px/1 var(--f-mono);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+.tabs a em{position:absolute;top:7px;right:8px;font-style:normal;color:var(--mute);font-size:9.5px}
+.tabs a .pix{height:22px;width:auto}
+.tabs a:hover{background:var(--stripe)}
+.tabs a[aria-current="page"]{color:var(--ink);box-shadow:inset 0 -4px 0 var(--green)}
+.walletcell{position:relative;display:flex;align-items:center;padding:12px 18px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font:700 14px/1.2 var(--f-ui);border:1.5px solid var(--edge);background:var(--panel);color:var(--ink);padding:12px 16px;cursor:pointer;box-shadow:3px 3px 0 var(--edge);text-decoration:none;white-space:nowrap}
+.btn:active:not([disabled]){transform:translate(2px,2px);box-shadow:1px 1px 0 var(--edge)}
+.btn.green{background:var(--green);color:#071206;border-color:#071206}
+.btn.dark{background:var(--ink);color:var(--bg)}
+.btn.sm{padding:7px 10px;font-size:12.5px;box-shadow:2px 2px 0 var(--edge)}
+.btn.wide{width:100%;padding:19px;font-size:16px}
+.btn[disabled]{opacity:.4;cursor:not-allowed;box-shadow:none}
+.btn .dot{width:9px;height:9px;background:#071206;display:inline-block}
+.btn.connected .dot{background:var(--green);outline:1.5px solid var(--edge)}
+.chip{font:500 10.5px/1 var(--f-mono);letter-spacing:.03em;border:1.5px solid var(--edge);background:var(--panel);padding:7px 10px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--green);color:#071206;border-color:#071206}
+.link{font:700 13px/1 var(--f-ui);border:0;background:none;padding:3px 0;border-bottom:3px solid var(--green);cursor:pointer;text-decoration:none}
+
+/* biolab */
+.grid-hero{display:grid;grid-template-columns:minmax(300px,400px) minmax(0,1fr);gap:16px;align-items:start}
+.col{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-content:start;min-width:0}
+label,.lbl{display:block;font:400 10.5px/1.2 var(--f-mono);color:var(--soft);letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
+.big{display:flex;align-items:baseline;gap:10px;margin:14px 0 6px}
+.big b{font:900 84px/.9 var(--f-head)}
+.big span{font:700 20px var(--f-head);color:var(--mute)}
+.kv4{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--rule);margin:14px 0 18px}
+.kv4>div{padding:12px 14px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.kv4>div:nth-child(2n){border-right:0}
+.kv4>div:nth-last-child(-n+2){border-bottom:0}
+.kv4 b{font:500 15.5px/1.2 var(--f-mono)}
+.hero-copy{padding:26px 28px 6px}
+h1{font:900 clamp(30px,3.8vw,56px)/1.02 var(--f-head);text-transform:uppercase;margin:0 0 14px;overflow-wrap:anywhere}
+h1 em{font-style:normal;color:var(--green-ink)}
+.hero-copy p{font-size:16.5px;color:var(--soft);margin:0;max-width:64ch}
+.treewrap{padding:14px 18px 0}
+.tree{display:block;width:100%;height:auto;border:1.5px solid var(--frame);background:#070907}
+.tree .edge{stroke:#1E3A1A;stroke-width:1;fill:none} .tree .flow{stroke:#4CFF2E;stroke-width:1;fill:none;stroke-dasharray:2 6;animation:grow 1.4s linear infinite}
+.tree .node{fill:#0F1A0E;stroke:#4CFF2E;stroke-width:.7} .tree .node.dead{stroke:#3A4A37} .tree .node.root{stroke-width:1.2}
+.tree .nt{font:600 4px var(--f-mono);fill:#EAF2E8} .tree .ns{font:400 3.2px var(--f-mono);fill:#7B8A78} .tree .gl{font:500 3.4px var(--f-mono);fill:#5E7A58;letter-spacing:.06em}
+@keyframes grow{to{stroke-dashoffset:-16}}
+.legend{display:flex;flex-wrap:wrap;gap:8px 22px;padding:14px 20px 18px;font:400 12px var(--f-mono);color:var(--soft)}
+.kv2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.kv2>div{padding:14px 18px}
+.kv2>div+div{border-left:1px solid var(--rule)}
+.kv2 b{font:800 17px/1.2 var(--f-head);text-transform:uppercase;overflow-wrap:anywhere}
+.btnrow{display:flex;gap:12px;padding:18px;border-top:1px solid var(--rule)}
+.btnrow .btn{flex:1}
+.feed{display:grid;grid-template-columns:repeat(6,1fr)}
+.feed>div{padding:18px 14px;text-align:center;border-right:1px solid var(--rule)}
+.feed>div:last-child{border-right:0}
+.feed .pix{height:36px;width:auto;margin:0 auto 10px;display:block}
+.feed b{display:block;font:800 16px var(--f-head)}
+.feed p{margin:4px 0 6px;font-size:13px;color:var(--soft);line-height:1.35}
+.ago{font:400 10.5px var(--f-mono);color:var(--mute);letter-spacing:.04em;text-transform:uppercase}
+.empty{padding:28px 20px;color:var(--soft);display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.empty .tile{width:48px;padding:3px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr)}
+.steps>div{padding:20px 18px 24px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.steps>div:nth-child(3n){border-right:0}
+.steps>div:nth-last-child(-n+3){border-bottom:0}
+.steps .pix{height:28px;width:auto;margin-bottom:12px} .steps .tile{width:40px;padding:2px;margin-bottom:12px}
+.steps .n{display:block;font:500 11px var(--f-mono);color:var(--green-ink);margin-bottom:6px}
+.steps h3{margin:0 0 6px;font:800 15px/1.25 var(--f-head);text-transform:uppercase}
+.steps p{margin:0;color:var(--soft);font-size:14.5px}
+.mt{margin-top:16px}
+
+/* genes */
+.genes{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0 10px}
+.genes div{font:500 9.5px var(--f-mono);color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+.genes .gb{display:flex;gap:2px;margin-top:3px}
+.genes .gb i{flex:1;height:7px;background:var(--rule)} .genes .gb i.on{background:var(--green)}
+
+/* deploy */
+.grid-2{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;align-items:start}
+.step h3{font:900 24px/1.1 var(--f-head);text-transform:uppercase;margin:0 0 8px}
+.step p{margin:0 0 16px;color:var(--soft);max-width:68ch}
+.opts{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.opt{text-align:left;border:1.5px solid var(--edge);background:var(--panel);padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.opt[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--green),4px 4px 0 var(--edge)}
+.opt b{font:800 14px/1.2 var(--f-head);text-transform:uppercase;margin-top:6px}
+.opt>span{color:var(--soft);font-size:13px}
+.opt dl{display:grid;grid-template-columns:auto 1fr;gap:3px 8px;margin:10px 0 0;font:400 11px var(--f-mono)}
+.opt dt{color:var(--mute)} .opt dd{margin:0;text-align:right}
+.tubes{display:flex;gap:3px;height:14px;align-items:flex-end}
+.tubes i{width:6px;height:14px;background:var(--green);border-radius:0 0 3px 3px}
+.note{font-size:13.5px;color:var(--soft);margin:14px 0 0;padding-left:12px;border-left:3px solid var(--green)}
+.youget{display:flex;gap:18px;align-items:center;padding:18px}
+.youget .tile{width:120px;padding:6px;flex:none}
+.youget b{display:block;font:900 32px/1 var(--f-head)}
+.youget span{color:var(--soft);font-size:14px}
+.rows>div{display:flex;justify-content:space-between;gap:16px;align-items:baseline;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.rows>div:last-child{border-bottom:0}
+.rows label{margin:0}
+.rows b{font:500 14px var(--f-mono);text-align:right}
+
+/* my lab */
+.kv5{display:grid;grid-template-columns:repeat(5,1fr)}
+.kv5>div{padding:16px 18px;border-right:1px solid var(--rule)}
+.kv5>div:last-child{border-right:0}
+.kv5 b{display:block;font:500 19px/1.2 var(--f-mono)}
+.kv5 b.g{color:var(--green-ink)}
+.actions{display:flex;flex-wrap:wrap;gap:12px;padding:18px;border-top:1px solid var(--rule)}
+.labrow{border-top:1px solid var(--rule)}
+.labrow:first-of-type{border-top:0}
+.lhead{display:grid;grid-template-columns:140px minmax(0,1fr) minmax(0,1fr)}
+.lhead>div{padding:18px}
+.lhead>div+div{border-left:1px solid var(--rule)}
+.lhead .tile{width:100%;padding:6px}
+.lhead h3{margin:0 0 8px;font:900 22px/1 var(--f-head);text-transform:uppercase;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;margin:10px 0 14px}
+.stats b{display:block;font:500 14px var(--f-mono)}
+.reactors{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid var(--rule)}
+.rx{padding:14px 16px;border-right:1px solid var(--rule)}
+.rx:last-child{border-right:0}
+.rx b{font:800 13px var(--f-head);text-transform:uppercase}
+.vial{height:52px;border:1.5px solid var(--edge);border-radius:0 0 8px 8px;position:relative;overflow:hidden;margin:8px 0 6px;background:var(--stripe)}
+.vial i{position:absolute;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,var(--green) 0 4px,color-mix(in srgb,var(--green) 70%,transparent) 4px 6px)}
+.rx small{font-size:12px;color:var(--soft)}
+.rx.idle .vial{opacity:.4}
+.orgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.org{padding:14px 16px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);display:flex;flex-direction:column}
+.org .top2{display:flex;gap:10px;align-items:center}
+.org .pix{height:30px;width:auto}
+.org h4{margin:0;font:800 15px/1.1 var(--f-head)}
+.org .st{font:400 11px var(--f-mono);color:var(--soft)}
+.org dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0 0 12px;font:400 11px var(--f-mono)}
+.org dt{color:var(--mute)} .org dd{margin:0;text-align:right}
+.org .btns{margin-top:auto}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.up{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--rule)}
+.up:last-child{border-bottom:0}
+.up b{font:700 14.5px var(--f-ui)}
+.up small{grid-column:1;font-size:12.5px;color:var(--soft)}
+.up .btn,.up .seg{grid-row:1 / span 2;grid-column:2}
+.pips{display:inline-flex;gap:3px;margin-left:8px;vertical-align:1px}
+.pips i{width:9px;height:9px;border:1px solid var(--edge);display:inline-block}
+.pips i.on{background:var(--green)}
+.rentbox{border:1px solid var(--rule);padding:12px 14px;margin-bottom:10px;background:var(--stripe)}
+.rentbox b{display:block;font:700 14.5px var(--f-ui);margin-bottom:2px}
+.rentbox p{margin:0 0 10px;font-size:13px;color:var(--soft)}
+.seg{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.seg>span{font:400 10.5px var(--f-mono);color:var(--mute);letter-spacing:.05em;text-transform:uppercase;margin-right:4px}
+.filters{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;padding:16px 18px}
+.lists{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr))}
+.lcard{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;padding:16px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.lcard .tile{width:96px;padding:4px}
+.lcard h4{margin:0 0 6px;font:900 20px/1 var(--f-head);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lcard dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0 0 12px;font:400 11px var(--f-mono)}
+.lcard dt{color:var(--mute)} .lcard dd{margin:0;text-align:right}
+.lcard .btn{width:100%;white-space:normal;text-align:center}
+
+/* how */
+.tree-how{display:grid;grid-template-columns:1fr 1.6fr 1fr;gap:0;border-top:1px solid var(--rule)}
+.tree-how>div{padding:18px;border-right:1px solid var(--rule)}
+.tree-how>div:last-child{border-right:0;background:var(--stripe)}
+.tree-how b{display:block;font:800 14px/1.2 var(--f-head);text-transform:uppercase;margin:6px 0 4px}
+.tree-how span{font-size:13.5px;color:var(--soft)}
+.muts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.muts div{border:1.5px solid var(--edge);padding:8px;font-size:13px}
+.split{padding:22px 22px 6px}
+.squares{display:grid;grid-template-columns:repeat(50,1fr);gap:2px}
+.squares i{aspect-ratio:1;display:block}
+.sq-a{background:var(--green)} .sq-b{background:var(--ink)} .sq-c{background:var(--mute);opacity:.5}
+.splitkeys{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);margin-top:18px}
+.splitkeys>div{padding:16px 22px;border-right:1px solid var(--rule)}
+.splitkeys>div:last-child{border-right:0}
+.splitkeys .k{display:flex;gap:8px;align-items:center;font:700 15px var(--f-ui)}
+.splitkeys .k i{width:13px;height:13px;display:inline-block}
+.splitkeys b{display:block;font:900 44px/1 var(--f-head);margin:8px 0 4px}
+.splitkeys p{margin:0;color:var(--soft);font-size:14px}
+.flyline{display:flex;flex-wrap:wrap;gap:8px;padding:18px 22px;align-items:center}
+.flyline span{border:1.5px solid var(--edge);padding:8px 12px;font:600 14px var(--f-ui)}
+.flyline span.hot{background:var(--green);color:#071206}
+.flyline i{font-style:normal;color:var(--mute);font-family:var(--f-mono)}
+.pbody{padding:18px 22px}
+.pbody p{margin:0 0 10px;color:var(--soft)}
+.pbody p:last-child{margin:0}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{font:400 10.5px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--soft);text-align:left;padding:10px 14px;border-bottom:1px solid var(--rule);background:var(--stripe)}
+td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right;font-family:var(--f-mono)}
+.tw{overflow-x:auto}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+
+/* docs */
+.docs{display:grid;grid-template-columns:250px minmax(0,1fr);gap:16px;align-items:start}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+.toc ol{list-style:none;margin:0;padding:8px 18px 14px}
+.toc li button{display:flex;gap:14px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--rule);padding:10px 0;cursor:pointer;font-size:14.5px}
+.toc li button span{font:400 10.5px var(--f-mono);color:var(--mute);padding-top:3px}
+.doc{scroll-margin-top:16px}
+.doc .body{padding:20px 24px 24px;max-width:80ch}
+.doc .body p,.doc .body li{color:var(--soft)}
+.doc .body strong{color:var(--ink)}
+.doc .body h4{font:800 15px var(--f-head);text-transform:uppercase;margin:20px 0 6px}
+.doc code{font:400 12px var(--f-mono);background:var(--stripe);padding:2px 5px}
+.doc .tw{margin:12px 0;border:1px solid var(--rule)}
+details{border-bottom:1px solid var(--rule)}
+details summary{cursor:pointer;padding:13px 0;font-weight:700;list-style:none}
+details summary::before{content:"▸";display:inline-block;width:18px;font-size:12px}
+details[open] summary::before{content:"▾"}
+details p{margin:0 0 14px 18px}
+
+/* overlays */
+.scrim{position:fixed;inset:0;background:rgba(4,6,4,.65);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal{max-width:640px;width:100%;max-height:calc(100% - 32px);overflow:auto;box-shadow:6px 6px 0 var(--green)}
+.x{margin-left:auto;background:none;border:0;font:700 18px var(--f-mono);cursor:pointer;padding:0 4px}
+.wlist{display:grid;gap:10px;padding:18px}
+.wopt{display:flex;align-items:center;gap:14px;border:1.5px solid var(--edge);background:var(--panel);padding:12px 14px;cursor:pointer;text-align:left;font:700 15px var(--f-ui);text-decoration:none}
+.wopt img,.wopt .ph-ico{width:28px;height:28px;flex:none}
+.wopt .ph-ico{background:var(--mute)}
+.wopt em{margin-left:auto;font:400 10.5px var(--f-mono);font-style:normal;color:var(--green-ink);text-transform:uppercase;letter-spacing:.05em}
+.wopt:hover{background:var(--stripe)}
+.menu{position:absolute;right:18px;top:calc(100% - 4px);z-index:40;min-width:260px;box-shadow:4px 4px 0 var(--green)}
+.menu .rows>div{padding:12px 16px}
+.mitems{display:grid;border-top:1px solid var(--rule)}
+.mitems button,.mitems a{text-align:left;background:none;border:0;border-bottom:1px solid var(--rule);padding:12px 16px;cursor:pointer;font:600 14px var(--f-ui);text-decoration:none}
+.mitems>*:last-child{border-bottom:0}
+.toasts{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));display:grid;gap:8px;z-index:60;max-width:min(380px,calc(100% - 32px))}
+.toast{background:var(--ink);color:var(--bg);padding:12px 16px;font:600 14px var(--f-ui);box-shadow:4px 4px 0 var(--green)}
+footer{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between;padding:22px 2px 36px;font-size:13px;color:var(--soft)}
+
+@media (max-width:1200px){
+  .grid-hero{grid-template-columns:minmax(0,1fr)}
+  .grid-hero>.hero{order:-1}
+  .grid-2{grid-template-columns:minmax(0,1fr)}
+  .opts{grid-template-columns:repeat(3,1fr)}
+  .feed{grid-template-columns:repeat(3,1fr)}
+  .feed>div:nth-child(3n){border-right:0}
+  .feed>div:nth-child(-n+3){border-bottom:1px solid var(--rule)}
+  .docs{grid-template-columns:minmax(0,1fr)}
+  .toc{position:static}
+  .kv5{grid-template-columns:repeat(3,1fr)}
+  .kv5>div:nth-child(3){border-right:0}
+  .kv5>div:nth-child(-n+3){border-bottom:1px solid var(--rule)}
+  .lhead{grid-template-columns:120px minmax(0,1fr)}
+  .lhead>div:last-child{grid-column:1 / -1;border-left:0;border-top:1px solid var(--rule)}
+  .reactors{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .rx{border-bottom:1px solid var(--rule)}
+}
+@media (max-width:1100px){
+  .nav{grid-template-columns:1fr auto}
+  .brand{border-right:0}
+  .tabs{grid-column:1 / -1;grid-row:2;display:flex;border-top:1px solid var(--rule)}
+  .tabs a{flex:1 0 96px}
+}
+@media (max-width:760px){
+  .hero-copy{padding:24px 20px 6px}
+  .tree .nt,.tree .ns,.tree .gl{display:none}
+  .steps{grid-template-columns:minmax(0,1fr)}
+  .steps>div{border-right:0!important;border-bottom:1px solid var(--rule)!important}
+  .tree-how{grid-template-columns:minmax(0,1fr)}
+  .tree-how>div{border-right:0;border-bottom:1px solid var(--rule)}
+}
+@media (max-width:700px){
+  .wrap{padding:10px}
+  .two,.opts{grid-template-columns:minmax(0,1fr)}
+  .feed{grid-template-columns:1fr 1fr}
+  .feed>div{border-bottom:1px solid var(--rule)}
+  .feed>div:nth-child(2n){border-right:0}
+  .feed>div:nth-child(3n){border-right:1px solid var(--rule)}
+  .feed>div:nth-child(6n){border-right:0}
+  .kv5{grid-template-columns:1fr 1fr}
+  .kv5>div{border-right:1px solid var(--rule)!important;border-bottom:1px solid var(--rule)}
+  .kv5>div:nth-child(2n){border-right:0!important}
+  .splitkeys{grid-template-columns:1fr}
+  .splitkeys>div{border-right:0;border-bottom:1px solid var(--rule)}
+  .squares{grid-template-columns:repeat(25,1fr)}
+  .big b{font-size:64px}
+  .brand{padding:8px 12px;gap:8px}
+  .brand .tile{width:36px}
+  .brand b{font-size:17px}
+  .walletcell{padding:10px 12px}
+  .walletcell .btn{padding:9px 10px;font-size:12.5px;gap:7px}
+  .lhead{grid-template-columns:minmax(0,1fr)}
+  .lhead>div+div{border-left:0;border-top:1px solid var(--rule)}
+  .lhead .tile{max-width:130px}
+  .reactors{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .rx:nth-child(2n){border-right:0}
+  .lists{grid-template-columns:minmax(0,1fr)}
+  .muts{grid-template-columns:1fr}
+  .up{grid-template-columns:minmax(0,1fr)}
+  .up .btn,.up .seg{grid-row:auto;grid-column:1;justify-self:start;margin-top:6px}
+}
+@media (prefers-reduced-motion:reduce){
+  .tree .flow{animation:none}
+  .btn:active:not([disabled]){transform:none}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="sprites"></defs></svg>
+
+<div class="wrap">
+  <header class="top panel">
+    <div class="nav">
+      <a class="brand" href="#biolab" aria-label="Replicate home">
+        <span class="tile"><svg class="lab" viewBox="0 0 74 65" shape-rendering="crispEdges" aria-hidden="true"><use href="#rOn"/></svg></span>
+        <span><b>Replicate</b><small>$REPLICATE</small></span>
+      </a>
+      <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+      <div class="walletcell">
+        <button class="btn green" id="walletBtn" data-act="wallet" aria-haspopup="true"><i class="dot"></i><span>Connect wallet</span></button>
+        <div class="menu panel" id="walletMenu" hidden></div>
+      </div>
+    </div>
+  </header>
+
+  <main id="view" tabindex="-1"></main>
+
+  <footer>
+    <span>Replicate. Sequence DNA. Engineer organisms. Replicate tokens.</span>
+    <span>Replication creates new projects, not guaranteed profits.</span>
+  </footer>
+</div>
+
+<div id="overlay"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ---------- logo pixel grid ---------- */
+const BIO = [".............................wwwwww..............................", "............................wsssssds.............................", "...........................wss....dds..g.........................", "...........................sg.DGGm.dg..ds..GGGGGGs...............", ".......................wws..g.mLLm.d....g.LLLLLLLm..w............", ".......................s...gg.mLLG.dd...d.mmmmmmGGmgww...........", ".......................s....g.mLLm.d....d.dddddd.mwssw...........", ".......................d...dg..Dm..dd............mGddsw..........", "...........................sg..mm..dg............m..ddsw.........", "...................wwwd....gg......dd.....sww.....d..ddsw........", "..................wssd....................dgsw........ddw........", "...................ww..gwwwwwwwwwwwwwwwsg..ww..........gs........", "................wwwww.ddddddddddddddddddd...wwww.....d.ds........", "..............w.wssss.d....mmmmmmmmmmD.....sssswww...d.gs........", "..............gwsssss.....mLLLLLLLLLLm.....sssssss...d.dd........", ".........ssg.w.wsssss.....mLLLLLLLLLGm.....ssssss.w....G.........", "........sdd..w.wsssss.......DmmmmDDD.......ssssss.w...mLm........", ".......wd....w.wsg.....dddd...................dss.w...mLm........", ".......s.....wd......LLLGGGGGGGGGGGGGGGGGGGm......w...mLm........", ".......s....d...GGGG.mGGGGGGGGGGGGGGGGGGGGm..GGG......mLm........", ".......g...d......sLwGwwwwwwwwwwwwwwwwwwwwGLLL..G.....mLm........", ".......g...d....w.GGGLwwLGGGGGGGGGGGGGGGGGGGGG.w......mLD........", "........m..d....ww...mwGGGGGGGGGGGGGGGGGGmm....w......mL.........", ".......LGG.d....w..GG.smmmmmGmmmmmGGmmmDD..GG.mw.......m.........", "........m..d....w.DGG.sm.DDDGGGGGGGmmDD..m.ss.mw....g.dssw.......", ".......sm..d....wmmGG.sm.LD.DGGmLLmDDDG..m.ss.mw...G......d......", ".......sd..d....wmmGG.smLG....GLLm...LmG.m.ss.mw...g..dssgs......", ".......sd..d....wmmGG.s......GLL......G..m.ss.mw..sd......dw.....", ".......sd..d....wmmG..s.....GLGmG........m.ss.mw.................", ".......g...d....wm.m..s....GsGmGGG.......m.ss.mw...mGDD.DmmG.....", "...........d....wm.m..s....wG....GG......m.ss.Gw...mGmDDLmmL.....", ".......wsgd.....wm.m..s...GLGLGG..G......m.sg.Gw...mGmmmmGmL.....", "......wssd.m....wm.m..g...LG...GGGGG.....D.gg.Gw...LwLLLLwwL.....", "......wgd..d....wmmm..g...LL.......Lm....m.gg.Gw...GwGGGLLwL.....", ".....LmGD.m.m...wG.m..g...GLGLLGGLGGGG...D.GG.Gw...mGmmmmGGL.....", ".....LGGmmG.m...wG.m..L....wL......GL....D.mm.Gw...mGmmmLLGL.....", ".....LGLmmG.m...wG.m.LGL...mwLmGGLGGL....D..m.Gw...mGmmmGGGL.....", ".....LGLmmG.m...wG.m..L.....GLL...mLD...Lm..m.Gw...mGmmmmmGL.....", ".....LGLmmG.d.ggwG.m..g......mLL.mLL....mL.gg.Gw...mGmmmmmGL.....", ".....LGLGmG.ddd.wGGm..g.......DLGLL.....Lm..g.Gw...mGmmGmmGL.....", ".....LGLGmG.d...wGGm..g..L.....mLL.........gg.Gw...mGmmmmmGL.....", ".......m........wGGm..g.......GLLGG......D..d.Gw...mGmmmGmGL.....", ".....wwwsd.dG...wG.m..g......GLL.GLG.....D.dd.Gw...mGmmmmmGL.....", ".....wssgd..g.dgwGGm..g.....LLG...GL.....D..m.Gw.................", "................wGGmm.m....LLmGLGLGLGG...m.mm.Gw..sg.dgssgsw.....", "...wwwwwwwwwdd..wG.mm.m.G.Dwm......GLL...m.mm.Gw..sd..dddddw.....", "..wssssssssswdddwG.mm.m...LLGD.G.GmGLmDDDLDmm.Gw...d.............", "..wg........sd.dwGGmm.mDDDLLmmmmmmmLLmDDLGLmm.Gw...d......d......", "..w.........sd.dwGGmmmmmmmLLmmmDmDGLmmmmGGmmmmGw.....d.ds.g......", "..w....DGD..sd.dwGmmmmmmmmmLLGLGmGLmmmmmmmmmmmGw.....d..d........", "..w...DGDG..sd.dwGmmmmGGmmmGLGmmLLmmmmmmmmmGGmGw......DG.........", "..s..mG..m..sd..wGmmmmGGGGGGGLGLLGGGGGGGGmmGGmGw.g....mLm........", "..w..G......s...wGLLLLwLGGGGGGLLGGGGGGGGGGLLLLGw..dd..mLD........", "..s.........s......LLLwLLGGGGLLLLLGGGGGGGGGLLLs.G..dg..m.........", "..s.........sd..Gdd.mwwwGGGGLLLLLLLLLGGGGGwm.mmd....d.dgd........", "..s..LL.m...s.......mGGGGGGGGGGGGGGGGGGGGGGm.....w...m.sw........", "..s..D......s..gwwwww.......................wwwwww...d.sw.dss....", "..s..GG..d..s..gwssss......................gssssss...d.gs..dgw...", "..w..LL.d...s.dgsssss...wwwwwwwwwwwwwwww...gssssss.....dd...ds...", "..w..L...........s.sg..wwwwwwwwwwwwwwwwww.....s........dd...ds...", "..wggdgd..wwwwwwwdwwww.sddddwwwwggggwdddg.wwwwgwwwwwww......ds...", "..ddddd..wsssssw.wwwww.gd..............dd.wwwww.dsssssw.....ds...", "..gd.....wssssss.wwsss.d................d.sssss.dsssssw.d...ds...", "...d.....wsssssd.wssss.d...GGGGGGGGGG...d.sssss.dsssssw.....ds...", ".........ws.dddd.wssss.d...GGGGGGGGGG...d..ssss.dddd.sw..........", ".wsss..........d.wssss.d................d..ssss.g..g.......sssw..", ".wss.wsssssssd...sssss.d...GGGGGGGGGG...d..ssss.d.dsssssssw.ssw..", ".wss.wsssssss....dssss.d................d..sssd....sssssssw.ssw..", ".wss.........ddd.dssss.d...GGGGGGGGGG...d..sssd..dg.........ssw..", ".wss...mmmm..dd...ssss.d................d.ssssd..dd..mmmm...ssw..", "...d..mLLLLm.ddd...dss.d................d.sss....dd.mLLLLm.......", "wddd..mmmmmm.ddd........dddddddddddddddd.........dd.mmmmmm..dddw.", "gddd..dddddd.dd.....d......................d.....dd.dddddd..dddg.", "................................................................."];
+
+/* ---------- config ---------- */
+const DAY = 86400, HOUR = 3600;
+const CFG = {
+  RPC: 'https://api.mainnet-beta.solana.com', // swap for your own RPC (Helius, Triton…) when you deploy
+  X: 'https://x.com/ReplicateRent',
+  SUPPLY: 1000, MINT0: 0.25, MINT1: 1.25,
+  OPER: 0.60, BURN: 0.25, OPS: 0.15,
+  LINEAGE: 0.10, LINEAGE_GENESIS: 0.15,
+  RENT_OWNER: 0.90, RENT_BURN: 0.10, LIC_BURN: 0.10,
+  INC_H: 2, REPL_COST: 3000,
+  PRICE0: 0.0000012, TOKEN_SUPPLY: 1e9,
+  START_T: 2 * DAY + 9 * HOUR,
+  OTHER_RATE: 4 / 1440
+};
+const TIERS = [
+  { name: 'Petri Lab', short: 'Petri', slots: 1, unlock: 0, cap: 'Produces basic digital organisms' },
+  { name: 'Genome Lab', short: 'Genome', slots: 2, unlock: 30000, cap: 'Supports genetic mutations and replication' },
+  { name: 'Synthetic Lab', short: 'Synthetic', slots: 3, unlock: 80000, cap: 'Combines multiple genetic blueprints' },
+  { name: 'Replication Facility', short: 'Replication', slots: 4, unlock: 150000, cap: 'Operates several autonomous bioreactors' },
+  { name: 'Genesis Lab', short: 'Genesis', slots: 5, unlock: 260000, cap: 'Coordinates large genetic family trees' }
+];
+const GENES = [
+  { k: 'int', name: 'Intelligence', fn: 'Determines AI agent capabilities', eff: '+6% output per level' },
+  { k: 'mut', name: 'Mutation', fn: 'Introduces new project characteristics', eff: 'Wider spread of outcomes; offspring mutate more' },
+  { k: 'rep', name: 'Replication', fn: 'Unlocks additional offspring projects', eff: '1 offspring per level' },
+  { k: 'ada', name: 'Adaptation', fn: 'Lets agents respond to changing narratives', eff: '+8% trading life per level' },
+  { k: 'eff', name: 'Efficiency', fn: 'Reduces virtual incubation time', eff: '−12% incubation time per level' }
+];
+const UP = {
+  splice: { name: 'Gene splicer', max: 5, cost: l => 6000 * l, eff: 'New genesis organisms start with stronger genes' },
+  incub:  { name: 'Incubator', max: 5, cost: l => 5000 * l, eff: '−15% incubation time per level' }
+};
+const DURS = [{ h: 1, name: '1 hour', off: 0 }, { h: 24, name: '1 day', off: 0.10 }, { h: 168, name: '1 week', off: 0.25 }];
+const NARR = { a: ['Capybara','Frog','Goose','Hamster','Penguin','Raccoon','Otter','Pigeon','Axolotl','Walrus','Helix','Spore','Cell','Gene','Proto','Myco','Algae','Virion','Plasma','Neuro'], b: ['Council','Summer','Army','Club','Rally','Strain','Clone','Labs','Form','Kin','Seed','Bloom','Line','Core','Swarm','Colony','Union','Crew','Brood','Mesh'] };
+
+/* ---------- utils ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function mulberry(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gauss(r = Math.random){ let u = 0, v = 0; while (!u) u = r(); while (!v) v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+const pick = (arr, r = Math.random) => arr[Math.floor(r() * arr.length)];
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const fmtSol = x => { x = +x || 0; return x >= 100 ? x.toFixed(1) : x >= 1 ? x.toFixed(2) : x >= 0.01 ? x.toFixed(3) : x > 0 ? x.toFixed(4) : '0'; };
+const fmtTok = x => { x = +x || 0; if (x >= 1e9) return (x/1e9).toFixed(2) + 'B'; if (x >= 1e6) return (x/1e6).toFixed(x >= 1e7 ? 1 : 2) + 'M'; if (x >= 1e3) return (x/1e3).toFixed(x >= 1e4 ? 0 : 1) + 'k'; return Math.round(x) + ''; };
+const pad2 = n => String(n).padStart(2, '0');
+function ago(t){ const s = S.t - t; if (s < 60) return 'just now'; if (s < HOUR) return Math.floor(s / 60) + ' min ago'; if (s < DAY) return `${Math.floor(s / HOUR)} h ${Math.floor(s % HOUR / 60)} min ago`; return Math.floor(s / DAY) + ' d ago'; }
+function left(t){ const s = Math.max(0, t - S.t); if (s < HOUR) return Math.max(1, Math.ceil(s / 60)) + ' min'; if (s < DAY) return `${Math.floor(s / HOUR)} h ${Math.floor(s % HOUR / 60)} min`; return `${Math.floor(s / DAY)} d ${Math.floor(s % DAY / HOUR)} h`; }
+const short = a => a ? a.slice(0, 4) + '…' + a.slice(-4) : '';
+const B58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+const randAddr = r => Array.from({ length: 44 }, () => B58[Math.floor(r() * 58)]).join('');
+const mintPrice = n => CFG.MINT0 + (CFG.MINT1 - CFG.MINT0) * (Math.min(n, CFG.SUPPLY) - 1) / (CFG.SUPPLY - 1);
+const price = () => CFG.PRICE0 * (1 + S.burned / CFG.TOKEN_SUPPLY * 40);
+const r50 = x => Math.max(50, Math.round(x / 50) * 50);
+const slotsOf = l => TIERS[l.tier].slots;
+const incTime = (l, g) => CFG.INC_H * HOUR * Math.pow(0.88, g.eff - 1) * Math.pow(0.85, l.incub - 1);
+
+/* ---------- sprites ---------- */
+(function(){
+  const on = { w: '#F0F2F0', s: '#BEC2BE', g: '#808480', d: '#383C38', L: '#BEFF96', G: '#4CFF2E', m: '#28961E', D: '#103C0C' };
+  const off = Object.assign({}, on, { L: '#8A9488', G: '#5E6A5C', m: '#3A4438', D: '#1C221B' });
+  const build = pal => { let r = ''; BIO.forEach((row, y) => { let x = 0; while (x < row.length) { const ch = row[x]; if (pal[ch]) { const s = x; while (x < row.length && row[x] === ch) x++; r += `<rect x="${s}" y="${y}" width="${x - s}" height="1" fill="${pal[ch]}"/>`; } else x++; } }); return r; };
+  document.getElementById('sprites').innerHTML = `<g id="rOn">${build(on)}</g><g id="rOff">${build(off)}</g>`;
+})();
+function pix(rows){
+  const h = rows.length, w = Math.max(...rows.map(r => r.length)); let r = '';
+  rows.forEach((row, y) => [...row].forEach((c, x) => { if (c === '#') r += `<rect x="${x}" y="${y}" width="1" height="1"/>`; else if (c === 'g') r += `<rect class="g" x="${x}" y="${y}" width="1" height="1"/>`; }));
+  return `<svg class="pix" viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+}
+const labTile = (on = true, extra = '') => `<span class="tile" role="img" aria-label="Biolab"><svg class="lab" viewBox="0 0 74 65" shape-rendering="crispEdges" aria-hidden="true"><use href="#${on ? 'rOn' : 'rOff'}"/>${extra}</svg></span>`;
+function labArt(l){ let extra = ''; for (let i = 0; i < 5; i++) extra += `<rect x="${2 + i * 5}" y="2" width="4" height="3" fill="${i <= l.tier ? '#4CFF2E' : '#1F271F'}"/>`; return labTile(l.inc.length > 0 || l.live > 0, extra); }
+const ICO = {
+  biolab: pix(['..###..','..#g#..','.#####.','.#ggg#.','.#g.g#.','.#ggg#.','.#####.','#######']),
+  deploy: pix(['...g...','..ggg..','...#...','.#####.','.#g.g#.','.#####.']),
+  mine: pix(['.#######.','#.......#','#....####','#....#g##','#....####','#.......#','.#######.']),
+  bank: pix(['g...g','.g.g.','..g..','.g.g.','g...g','.g.g.','..g..','.g.g.','g...g']),
+  rent: pix(['.###.....','#...#....','#.g.#####','#...#.#.#','.###.....']),
+  how: pix(['###...###','#g##.##g#','#..#.#..#','#.##.##.#','#..#.#..#','###.#.###']),
+  docs: pix(['######..','#....##.','#.gg..##','#......#','#.####.#','#......#','#.####.#','########']),
+  coin: pix(['..###..','.#ggg#.','#gg#gg#','#g###g#','#gg#gg#','.#ggg#.','..###..']),
+  dna: pix(['g...#','.g.#.','..g..','.#.g.','#...g','.#.g.','..g..','.g.#.','g...#']),
+  tree: pix(['g........','#........','####g....','#...#....','#...####g','#........','####g....']),
+  vial: pix(['.###.','.#.#.','#...#','#ggg#','#ggg#','.###.'])
+};
+function genesHTML(g){ return `<div class="genes">${GENES.map(x => `<div>${x.name.slice(0, 4)}<div class="gb">${Array.from({ length: 5 }, (_, i) => `<i class="${i < g[x.k] ? 'on' : ''}"></i>`).join('')}</div></div>`).join('')}</div>`; }
+
+/* ---------- state ---------- */
+const KEY = 'replicate-state-v1', KEYW = 'replicate-wallet-v1';
+let S, lById = new Map(), cById = new Map();
+function reindex(){ lById = new Map(S.labs.map(l => [l.id, l])); cById = new Map(S.coins.map(c => [c.id, c])); }
+function feedPush(x){ x.t = S.t; S.feed.unshift(x); if (S.feed.length > 60) S.feed.length = 60; }
+const hourly = l => l.rv / Math.max(6, Math.min(168, (S.t - l.t) / HOUR));
+const fair = (l, share) => r50(0.75 * share * Math.max(hourly(l), 0.0015 * slotsOf(l)) / price());
+const opIsUser = l => l.rent ? l.rent.user : l.user;
+const randGenes = (r, bonus = 0) => Object.fromEntries(GENES.map(g => [g.k, clamp(1 + Math.floor(r() * 3 + bonus * r()), 1, 5)]));
+const tickOf = r => { const a = pick(NARR.a, r), b = pick(NARR.b, r); return (a.slice(0, 4) + b.slice(0, 1 + Math.floor(r() * 3))).toUpperCase(); };
+
+function addOther(r){
+  const n = S.labs.length + 1; if (n > CFG.SUPPLY) return;
+  const fee = mintPrice(n), x = r(), tier = x < 0.4 ? 0 : x < 0.7 ? 1 : x < 0.87 ? 2 : x < 0.96 ? 3 : 4;
+  const l = { id: n, owner: randAddr(r), user: false, tier, splice: 1 + Math.floor(r() * r() * 3), incub: 1 + Math.floor(r() * r() * 3), inc: [], live: 0, count: 0, unclaimed: 0, lineUn: 0, rentUn: 0, own: 0, life: 0, rv: 0, list: null, rent: null, t: S.t };
+  if (r() < 0.12) l.list = { share: pick([0.5, 0.6, 0.7, 0.8], r), k: 0.8 + r() * 0.6, price: 0 };
+  S.burnSol += fee * 0.5; S.burned += fee * 0.5 / price() + TIERS[tier].unlock; S.ops += fee * 0.5;
+  S.labs.push(l); lById.set(l.id, l);
+  if (l.list) l.list.price = r50(fair(l, l.list.share) * l.list.k);
+}
+function sequence(l, r = Math.random){
+  const genes = randGenes(r, (l.splice - 1) * 0.5);
+  const sp = { id: S.nextSp++, tick: tickOf(r), genes, parent: null, gen: 0, ready: S.t + incTime(l, genes), t0: S.t };
+  l.inc.push(sp); return sp;
+}
+function mutate(pg, r = Math.random){ const g = {}; for (const x of GENES) { const d = r() < 0.25 + 0.08 * pg.mut ? (r() < 0.5 ? -1 : 1) : 0; g[x.k] = clamp(pg[x.k] + d, 1, 5); } return g; }
+function replicate(l, parent, bonusInt = 0, r = Math.random){
+  const genes = mutate(parent.genes, r); genes.int = clamp(genes.int + bonusInt, 1, 5);
+  const sp = { id: S.nextSp++, tick: (parent.tick.slice(0, 4) + pick(['X','II','B','V','Z','Q','III','R'], r)).toUpperCase(), genes, parent: parent.id, gen: parent.gen + 1, family: parent.family, ready: S.t + incTime(l, genes), t0: S.t };
+  parent.kids++; l.inc.push(sp); return sp;
+}
+function hatch(l, sp){
+  const g = sp.genes, sd = 1.2 + 0.12 * g.mut, base = Math.log(0.08) + sd * gauss();
+  const par = sp.parent ? cById.get(sp.parent) : null;
+  const logF = par ? 0.5 * Math.log(par.F) + 0.5 * base : base;
+  const c = { id: S.nextCoin++, lab: l.id, tick: sp.tick, genes: g, parent: sp.parent, gen: sp.gen, kids: 0, t0: S.t, F: Math.exp(logF) * (1 + 0.06 * (g.int - 1)), L: Math.exp(Math.log(120) + 0.9 * gauss()) * (1 + 0.08 * (g.ada - 1)), fees: 0, alive: true, grad: false, lic: 0, user: opIsUser(l) };
+  c.family = sp.family || c.id;
+  c.gradAt = c.F > 5 ? c.F * 0.3 : -1;
+  S.coins.push(c); cById.set(c.id, c); l.live++; l.count++;
+  feedPush({ k: 'launch', lab: l.id, tick: c.tick, gen: c.gen }); S.ver++;
+  if (opIsUser(l) && S.speed <= 60) toast(`${c.gen ? 'Offspring' : 'Organism'} $${c.tick} left the bioreactor and launched`);
+}
+function pay(c, fee){
+  c.fees += fee;
+  S.burnSol += fee * CFG.BURN; S.burned += fee * CFG.BURN / price(); S.ops += fee * CFG.OPS;
+  const l = lById.get(c.lab); if (!l) return;
+  let op = fee * CFG.OPER;
+  const par = c.parent ? cById.get(c.parent) : null;
+  if (par) { const pl = lById.get(par.lab); const share = pl && pl.tier >= 4 ? CFG.LINEAGE_GENESIS : CFG.LINEAGE; const cut = op * share; op -= cut; par.lineage = (par.lineage || 0) + cut; if (pl) { pl.lineUn += cut; if (pl.user) S.lineTotal += cut; } }
+  const renter = l.rent ? op * l.rent.share : 0;
+  l.rentUn += renter; l.unclaimed += op - renter; l.own += op - renter; l.life += op; l.rv += op;
+}
+function startRent(l, who, isUser, hours, cost, share){
+  l.rent = { who, user: isUser, until: S.t + hours * HOUR, share, hours }; l.rentUn = 0;
+  S.burned += cost * CFG.RENT_BURN;
+  if (l.user && !isUser) { S.wal.rep += cost * CFG.RENT_OWNER; toast(`Lab #${l.id} rented for ${hours === 1 ? '1 hour' : hours === 24 ? '1 day' : '1 week'}: +${fmtTok(cost * CFG.RENT_OWNER)} $REPLICATE`); }
+  S.ver++;
+}
+function endRent(l){
+  if (l.rent.user && l.rentUn > 0) { S.wal.sol += l.rentUn; toast(`Rental of lab #${l.id} ended. ${fmtSol(l.rentUn)} SOL settled to your wallet.`); }
+  l.rentUn = 0; l.rent = null; S.ver++;
+}
+function step(dm){
+  const t0 = S.t; S.t += dm * 60;
+  if (S.labs.length < CFG.SUPPLY && Math.random() < dm * CFG.OTHER_RATE) { addOther(Math.random); S.ver++; }
+  for (const l of S.labs) {
+    if (l.rent && S.t >= l.rent.until) endRent(l);
+    if (l.list && !l.rent && Math.random() < dm / 1100 * Math.max(0.05, Math.min(3, fair(l, l.list.share) / l.list.price))) { const x = Math.random(), d = DURS[x < 0.5 ? 0 : x < 0.9 ? 1 : 2]; startRent(l, randAddr(Math.random), false, d.h, l.list.price * d.h * (1 - d.off), l.list.share); }
+    for (const sp of l.inc.filter(s => S.t >= s.ready)) { l.inc = l.inc.filter(s => s !== sp); hatch(l, sp); }
+    const busy = l.inc.length + l.live;
+    if (busy < slotsOf(l)) {
+      const autoOn = l.user ? l.auto !== false : true;
+      if (!l.user && l.tier >= 1 && Math.random() < dm / 45) {
+        const cands = S.coins.filter(c => c.lab === l.id && c.alive && c.kids < c.genes.rep && c.fees > 0.02);
+        if (cands.length) { const p = cands.sort((a, b) => b.fees - a.fees)[0]; replicate(l, p); S.burned += CFG.REPL_COST; continue; }
+      }
+      if (autoOn && Math.random() < dm / 40) sequence(l);
+    }
+  }
+  for (const c of S.coins) {
+    if (!c.alive) continue;
+    const a0 = Math.max(0, (t0 - c.t0) / 60), a1 = Math.max(0, (S.t - c.t0) / 60);
+    const fee = c.F * (Math.exp(-a0 / c.L) - Math.exp(-a1 / c.L));
+    if (fee > 0) pay(c, fee);
+    if (!c.grad && c.gradAt > 0 && c.fees >= c.gradAt) { c.grad = true; S.ver++; }
+    if (a1 > 3 * c.L) { c.alive = false; c.lic = 0; const l = lById.get(c.lab); if (l) l.live = Math.max(0, l.live - 1); S.ver++; }
+  }
+  // gene bank: other labs license user blueprints; listings come and go
+  for (const c of S.coins) {
+    if (!c.lic || !c.alive) continue;
+    if (c.user && Math.random() < dm / 300 * Math.min(3, (c.fees * 40000 + 2000) / c.lic)) {
+      const buyers = S.labs.filter(l => !l.user && l.inc.length + l.live < slotsOf(l));
+      if (buyers.length && c.kids < c.genes.rep) { const b = pick(buyers); replicate(b, c); S.wal.rep += c.lic * (1 - CFG.LIC_BURN); S.burned += c.lic * CFG.LIC_BURN; toast(`Lab #${b.id} licensed your blueprint $${c.tick} for ${fmtTok(c.lic)} $REPLICATE`); S.ver++; }
+    }
+  }
+  if (Math.random() < dm / 120) {
+    const listed = S.coins.filter(c => !c.user && c.lic).length;
+    if (listed < 10) { const cand = S.coins.filter(c => !c.user && c.alive && !c.lic && c.kids < c.genes.rep && c.fees > 0.01); if (cand.length) { const c = pick(cand); c.lic = r50(3000 + c.fees * 30000); S.ver++; } }
+  }
+  const decay = Math.exp(-dm * 60 / (7 * DAY)); for (const l of S.labs) l.rv *= decay;
+  if (Math.floor(S.t / HOUR) !== Math.floor(t0 / HOUR)) {
+    const keepFam = new Set(S.coins.filter(c => c.alive).map(c => c.family));
+    S.coins = S.coins.filter(c => c.alive || c.grad || c.user || keepFam.has(c.family) || c.t0 > S.t - 8 * HOUR);
+    cById = new Map(S.coins.map(c => [c.id, c]));
+    for (const l of S.labs) if (l.list && !l.user) l.list.price = r50(fair(l, l.list.share) * l.list.k);
+  }
+}
+function advance(minutes){ while (minutes > 0) { const d = Math.min(5, minutes); step(d); minutes -= d; } }
+function newWorld(){
+  S = { v: 1, t: CFG.START_T - 2 * DAY, speed: 60, labs: [], coins: [], feed: [], burned: 0, burnSol: 0, ops: 0, lineTotal: 0, wal: { sol: 30, rep: 250000 }, nextCoin: 1, nextSp: 1, ver: 0 };
+  lById = new Map(); cById = new Map();
+  const r = mulberry(127);
+  for (let i = 0; i < 36; i++) addOther(r);
+  advance(2 * 24 * 60);
+  S.feed = S.feed.slice(0, 40);
+}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function load(){
+  try { const raw = localStorage.getItem(KEY); if (raw) { const s = JSON.parse(raw); if (s && s.v === 1 && Array.isArray(s.labs)) { S = s; reindex(); return; } } } catch (e) {}
+  newWorld();
+}
+
+/* ---------- wallet (Wallet Standard + injected providers, validated with @solana/web3.js) ---------- */
+const W = { list: [], addr: null, name: null, entry: null, kind: null, balance: null };
+const isMine = l => !!(l && l.user && W.addr && l.owner === W.addr);
+const isRenting = l => !!(l && l.rent && l.rent.user && W.addr && l.rent.who === W.addr);
+function addWallet(x){ if (!W.list.some(w => w.name.toLowerCase() === x.name.toLowerCase())) W.list.push(x); }
+const wsApi = { register: (...ws) => { ws.forEach(w => { try { if (w.features && w.features['standard:connect'] && (w.chains || []).some(c => String(c).startsWith('solana:'))) addWallet({ name: w.name, icon: w.icon, kind: 'standard', w }); } catch (e) {} }); return () => {}; } };
+try {
+  window.addEventListener('wallet-standard:register-wallet', ev => { try { ev.detail(wsApi); } catch (e) {} });
+  window.dispatchEvent(new CustomEvent('wallet-standard:app-ready', { detail: wsApi }));
+} catch (e) {}
+function detectInjected(){
+  const c = [['Phantom', window.phantom && window.phantom.solana], ['Solflare', window.solflare], ['Backpack', window.backpack], ['Solana wallet', window.solana]];
+  for (const [n, p] of c) {
+    if (!p || typeof p.connect !== 'function') continue;
+    const name = p.isPhantom ? 'Phantom' : p.isSolflare ? 'Solflare' : n;
+    if (!W.list.some(w => w.name.toLowerCase().startsWith(name.toLowerCase()))) addWallet({ name, icon: null, kind: 'injected', p });
+  }
+}
+function validAddr(a){
+  try { if (window.solanaWeb3 && solanaWeb3.PublicKey) return new solanaWeb3.PublicKey(a).toBase58(); } catch (e) { return null; }
+  return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(a) ? a : null;
+}
+async function connectEntry(entry, silent){
+  let addr = null;
+  if (entry.kind === 'standard') {
+    const w = entry.w;
+    if (silent) { if (w.accounts && w.accounts.length) addr = w.accounts[0].address; else return false; }
+    else { const r = await w.features['standard:connect'].connect(); const acc = (r && r.accounts && r.accounts.length ? r.accounts : w.accounts)[0]; addr = acc && acc.address; }
+    try { w.features['standard:events'] && w.features['standard:events'].on('change', ({ accounts }) => { if (accounts && accounts.length) setWallet(accounts[0].address, entry); else clearWallet(); }); } catch (e) {}
+  } else {
+    const p = entry.p;
+    const r = await p.connect(silent ? { onlyIfTrusted: true } : undefined);
+    const pk = (r && r.publicKey) || p.publicKey; addr = pk && pk.toString();
+    try { p.on && p.on('accountChanged', pk => { if (pk) setWallet(pk.toString(), entry); else clearWallet(); }); } catch (e) {}
+  }
+  if (!addr) throw new Error('The wallet returned no account.');
+  setWallet(addr, entry);
+  return true;
+}
+function setWallet(addr, entry){
+  const ok = validAddr(addr);
+  if (!ok) { toast('That wallet returned an invalid Solana address.'); return; }
+  W.addr = ok; W.name = entry ? entry.name : 'Guest wallet'; W.entry = entry || null; W.kind = entry ? entry.kind : 'guest'; W.balance = null;
+  try { localStorage.setItem(KEYW, JSON.stringify({ name: W.name, kind: W.kind, addr: W.kind === 'guest' ? W.addr : null })); } catch (e) {}
+  for (const l of S.labs) { if (l.user) l.owner = W.addr; if (l.rent && l.rent.user) l.rent.who = W.addr; }
+  paintWallet(); S.ver++; render(true);
+  if (W.kind !== 'guest') fetchBalance();
+}
+async function fetchBalance(){
+  if (!window.solanaWeb3 || !W.addr) return;
+  try {
+    const conn = new solanaWeb3.Connection(CFG.RPC, 'confirmed');
+    const lamports = await Promise.race([conn.getBalance(new solanaWeb3.PublicKey(W.addr)), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000))]);
+    W.balance = lamports / solanaWeb3.LAMPORTS_PER_SOL;
+  } catch (e) { W.balance = 'unavailable'; }
+  paintWallet();
+}
+async function clearWallet(){
+  const e = W.entry;
+  try { if (e && e.kind === 'standard' && e.w.features['standard:disconnect']) await e.w.features['standard:disconnect'].disconnect(); if (e && e.kind === 'injected' && e.p.disconnect) await e.p.disconnect(); } catch (err) {}
+  Object.assign(W, { addr: null, name: null, entry: null, kind: null, balance: null });
+  try { localStorage.removeItem(KEYW); } catch (err) {}
+  $('#walletMenu').hidden = true; paintWallet(); S.ver++; render(true);
+}
+function paintWallet(){
+  const b = $('#walletBtn');
+  if (W.addr) { b.className = 'btn connected'; b.innerHTML = `<i class="dot"></i><span>${short(W.addr)}</span>`; b.setAttribute('aria-label', `Wallet ${W.addr}, open menu`); }
+  else { b.className = 'btn green'; b.innerHTML = `<i class="dot"></i><span>Connect wallet</span>`; b.setAttribute('aria-label', 'Connect wallet'); }
+  if (W.addr) {
+    const bal = W.kind === 'guest' ? fmtSol(S.wal.sol) + ' SOL' : W.balance == null ? 'Checking…' : W.balance === 'unavailable' ? 'Unavailable' : fmtSol(W.balance) + ' SOL';
+    $('#walletMenu').innerHTML = `<div class="rows"><div><label>Wallet</label><b>${esc(W.name)}</b></div><div><label>Address</label><b>${short(W.addr)}</b></div><div><label>Balance</label><b>${bal}</b></div><div><label>$REPLICATE</label><b>${fmtTok(S.wal.rep)}</b></div></div>
+      <div class="mitems"><button data-act="copyAddr">Copy address</button>${W.kind !== 'guest' ? `<a href="https://solscan.io/account/${W.addr}" target="_blank" rel="noopener">View on Solscan</a>` : ''}<button data-act="disconnect">Disconnect</button></div>`;
+  }
+}
+function openWalletModal(){
+  detectInjected();
+  const items = W.list.map((w, i) => `<button class="wopt" data-act="pickWallet" data-i="${i}">${w.icon ? `<img src="${esc(w.icon)}" alt="">` : `<span class="ph-ico"></span>`}<span>${esc(w.name)}</span><em>Detected</em></button>`).join('');
+  modal(`<section class="panel modal" role="dialog" aria-modal="true" aria-labelledby="wt">
+    <h2 class="ph" id="wt">${ICO.mine} Connect a Solana wallet <button class="x" data-act="close" aria-label="Close">×</button></h2>
+    <div class="wlist">
+      ${items || `<p class="small" style="margin:0">No Solana wallet found in this browser. Install one, then reload this page.</p>
+        <a class="wopt" href="https://phantom.app/download" target="_blank" rel="noopener"><span class="ph-ico"></span>Get Phantom</a>
+        <a class="wopt" href="https://solflare.com/download" target="_blank" rel="noopener"><span class="ph-ico"></span>Get Solflare</a>
+        <a class="wopt" href="https://backpack.app/downloads" target="_blank" rel="noopener"><span class="ph-ico"></span>Get Backpack</a>`}
+      <button class="wopt" data-act="guestWallet"><span class="ph-ico" style="background:var(--green)"></span><span>Continue as guest</span></button>
+      <p class="small" style="margin:4px 0 0">Connecting shares your public address only.</p>
+    </div></section>`);
+}
+async function eagerConnect(){
+  let saved = null; try { saved = JSON.parse(localStorage.getItem(KEYW) || 'null'); } catch (e) {}
+  if (!saved) return;
+  if (saved.kind === 'guest' && saved.addr) { setWallet(saved.addr, null); return; }
+  detectInjected();
+  const entry = W.list.find(w => w.name === saved.name);
+  if (entry) { try { await connectEntry(entry, true); } catch (e) {} }
+}
+
+/* ---------- the replication tree ---------- */
+function familyOf(root){ return S.coins.filter(c => c.family === root.id).sort((a, b) => a.gen - b.gen || a.t0 - b.t0); }
+function bestFamily(){
+  const roots = S.coins.filter(c => !c.parent);
+  let best = null, bs = 0;
+  for (const r of roots) { const f = familyOf(r).filter(c => c.gen < 4), bg = {}; f.forEach(c => bg[c.gen] = (bg[c.gen] || 0) + 1); const breadth = Math.max(...Object.values(bg)); const sc = f.length * 10 + Math.min(6, breadth) * 14 + f.filter(c => c.alive).length; if (sc > bs) { bs = sc; best = r; } }
+  return best;
+}
+function treeSVG(){
+  const Wd = 340, root = bestFamily();
+  let H = 70;
+  let s = `<svg class="tree" viewBox="0 0 ${Wd} ${H}" shape-rendering="crispEdges" role="img" aria-label="The largest genetic family tree: a genesis organism and its replicated offspring across generations.">`;
+  if (!root) return s + `<text class="gl" x="10" y="20">NO FAMILIES YET</text></svg>`;
+  const fam = familyOf(root), byGen = {};
+  fam.forEach(c => (byGen[c.gen] = byGen[c.gen] || []).push(c));
+  const gens = Object.keys(byGen).map(Number).sort((a, b) => a - b).slice(0, 4);
+  H = Math.max(64, 26 + 22 * Math.max(...gens.map(g => Math.min(6, byGen[g].length))));
+  s = s.replace(/viewBox="0 0 340 \d+"/, `viewBox="0 0 340 ${H}"`);
+  const colW = (Wd - 20) / Math.max(gens.length, 1), pos = {};
+  gens.forEach((g, gi) => { const list = byGen[g].slice(0, 6); s += `<text class="gl" x="${10 + gi * colW}" y="9">${g === 0 ? 'GENESIS' : 'GENERATION ' + g}</text>`; list.forEach((c, i) => { pos[c.id] = [10 + gi * colW, 16 + (H - 22) * (i + 0.5) / list.length - 8]; }); });
+  for (const c of fam) { if (!pos[c.id] || !c.parent || !pos[c.parent]) continue; const [x1, y1] = pos[c.parent], [x2, y2] = pos[c.id], d = `M${x1 + 58} ${y1 + 8} H${(x1 + 58 + x2) / 2} V${y2 + 8} H${x2}`; s += `<path class="edge" d="${d}"/>${c.alive ? `<path class="flow" d="${d}"/>` : ''}`; }
+  for (const c of fam) { if (!pos[c.id]) continue; const [x, y] = pos[c.id]; s += `<g><title>$${esc(c.tick)}, generation ${c.gen}${c.alive ? ', trading' : ', quiet'}, ${fmtSol(c.fees)} SOL fees, ${c.kids} offspring</title><rect class="node${c.alive ? '' : ' dead'}${c.gen ? '' : ' root'}" x="${x}" y="${y}" width="58" height="16"/><rect x="${x + 3}" y="${y + 4}" width="3" height="8" fill="${c.alive ? '#4CFF2E' : '#3A4A37'}"/><text class="nt" x="${x + 9}" y="${y + 7.5}">$${esc(c.tick)}</text><text class="ns" x="${x + 9}" y="${y + 12.5}">${fmtSol(c.fees)} SOL · ${c.kids} kids</text></g>`; }
+  return s + '</svg>';
+}
+
+/* ---------- views ---------- */
+const TABS = [['biolab','Biolab',ICO.biolab],['deploy','Deploy',ICO.deploy],['lab','My lab',ICO.mine],['bank','Gene bank',ICO.bank],['rentals','Rentals',ICO.rent],['how','How it works',ICO.how],['docs','Docs',ICO.docs]];
+let tab = 'biolab';
+const D = { tier: 0 };
+const M = { sort: 'value', dur: 1 };
+const LST = { id: 0, share: 0.7, mult: 1 };
+const LIC = { id: 0, mult: 1 };
+const myLabs = () => W.addr ? S.labs.filter(isMine) : [];
+const myRent = () => W.addr ? S.labs.filter(isRenting) : [];
+const opLabs = () => [...myLabs().filter(l => !l.rent), ...myRent()];
+const freeLab = (minTier = 0) => opLabs().find(l => l.tier >= minTier && l.inc.length + l.live < slotsOf(l));
+const myOrgs = () => W.addr ? S.coins.filter(c => opLabs().some(l => l.id === c.lab) || (c.user && myLabs().some(l => l.id === c.lab))) : [];
+const unTotal = () => myLabs().reduce((a, l) => a + l.unclaimed + l.lineUn, 0) + myRent().reduce((a, l) => a + l.rentUn, 0);
+const LIVE = {
+  burned: () => fmtTok(S.burned),
+  live: () => String(S.coins.filter(c => c.alive).length),
+  un: id => { const l = lById.get(+id); return fmtSol(l ? l.unclaimed + l.lineUn : 0) + ' SOL'; },
+  line: id => fmtSol(lById.get(+id)?.lineUn) + ' SOL',
+  rentUn: id => fmtSol(lById.get(+id)?.rentUn) + ' SOL',
+  myUn: () => fmtSol(unTotal()) + ' SOL',
+  claimAll: () => 'Collect all · ' + fmtSol(unTotal()) + ' SOL',
+  ago: t => ago(+t),
+  left: t => left(+t)
+};
+function kv(label, val, k){ return `<div><label>${label}</label><b${k ? ` data-k="${k}"` : ''}>${val}</b></div>`; }
+
+let latestSnap = null, latestAt = 0;
+function vBiolab(){
+  const n = S.labs.length, nowR = performance.now();
+  if (!latestSnap || nowR - latestAt > 30000) { latestSnap = S.feed.filter(f => f.k === 'launch').slice(0, 6); latestAt = nowR; }
+  const offspring = S.coins.filter(c => c.gen > 0).length;
+  return `<div class="grid-hero"><div class="col">
+  <section class="panel">
+    <h2 class="ph">${ICO.biolab} Status <small>the biolab network right now</small></h2>
+    <div class="pad">
+      <label>Biolabs deployed</label>
+      <div class="big"><b>${n}</b><span>/ ${CFG.SUPPLY.toLocaleString('en-US')}</span></div>
+      <div class="kv4">
+        ${kv('Deploy price', fmtSol(mintPrice(n + 1)) + ' SOL')}
+        ${kv('Organisms trading', S.coins.filter(c => c.alive).length, 'live')}
+        ${kv('Incubating', S.labs.reduce((a, l) => a + l.inc.length, 0))}
+        ${kv('$REPLICATE burned', fmtTok(S.burned), 'burned')}
+      </div>
+      <button class="btn green wide" data-go="deploy">Deploy a biolab</button>
+    </div>
+  </section>
+  <section class="panel">
+    <h2 class="ph">${ICO.coin} $REPLICATE <small>token</small></h2>
+    <div class="kv2"><div><label>Project</label><b>Replicate</b></div><div><label>Ticker</label><b>$REPLICATE</b></div></div>
+    ${CFG.X ? `<div class="btnrow"><a class="btn" href="${esc(CFG.X)}" target="_blank" rel="noopener">Follow @ReplicateRent on X</a></div>` : ''}
+  </section>
+  </div>
+  <section class="panel hero">
+    <h2 class="ph">${ICO.tree} The replication tree <small>the largest genetic family in the network, live</small></h2>
+    <div class="hero-copy">
+      <h1>Sequence DNA. Engineer organisms. <em>Replicate tokens.</em></h1>
+      <p>Each biolab is an NFT that engineers digital organisms, incubates them in bioreactors and launches each one as a coin on pump.fun. Replicate the ones that work into new generations; every offspring pays its parent a lineage share.</p>
+    </div>
+    <div class="treewrap">${treeSVG()}</div>
+    <div class="legend"><span>${S.coins.length} organisms tracked</span><span>${offspring} offspring</span><span>${S.coins.filter(c => c.lic && !c.user).length} blueprints for license</span></div>
+  </section>
+  </div>
+  <section class="panel mt">
+    <h2 class="ph">${ICO.docs} Latest launches <small>organisms that just left the bioreactor</small><button class="link end" data-go="bank">Gene bank</button></h2>
+    ${latestSnap.length ? `<div class="feed">${latestSnap.map(x => `<div>${ICO.dna}<b>$${esc(x.tick)}</b><p>${x.gen ? 'Generation ' + x.gen + ' offspring' : 'Genesis organism'} · lab #${x.lab}</p><span class="ago" data-k="ago:${x.t}">${ago(x.t)}</span></div>`).join('')}</div>`
+      : `<div class="empty">${labTile()}<span>Nothing launched yet.</span></div>`}
+  </section>
+  <section class="panel mt">
+    <h2 class="ph">${ICO.how} How it works <small>six steps</small><button class="link end" data-go="how">All the rules</button></h2>
+    ${stepsHTML()}
+  </section>`;
+}
+function stepsHTML(){
+  const st = [
+    [labTile(), 'Deploy a biolab', 'Buy a virtual biotechnology lab, a tradable NFT.'],
+    [ICO.dna, 'Sequence DNA', 'AI agents read emerging narratives and write a genetic blueprint for each new project.'],
+    [ICO.biolab, 'Engineer organisms', 'Five genes give each organism its identity, branding and AI capabilities.'],
+    [ICO.vial, 'Incubate specimens', 'Organisms grow in a bioreactor until they’re ready to launch.'],
+    [ICO.tree, 'Replicate organisms', 'Each specimen launches its own coin; successful ones can be replicated into offspring.'],
+    [ICO.coin, 'Expand the lab', 'Reinvest in bigger labs, gene splicers and faster incubators.']
+  ];
+  return `<div class="steps">${st.map((x, i) => `<div>${x[0]}<span class="n">${pad2(i + 1)}</span><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join('')}</div>`;
+}
+
+function vDeploy(){
+  const n = S.labs.length + 1, fee = mintPrice(n), tr = TIERS[D.tier];
+  const shortSol = S.wal.sol < fee, shortR = S.wal.rep < tr.unlock, can = W.addr && n <= CFG.SUPPLY && !shortSol && !shortR;
+  return `<div class="grid-2"><div class="col">
+  <section class="panel step">
+    <h2 class="ph"><b>Step 1</b> <small>choose a laboratory</small><span class="tag green end">Now</span></h2>
+    <div class="pad"><h3>How big a lab?</h3>
+      <p>Higher-tier labs run more bioreactors and unlock replication, blueprint licensing and larger family trees. You can upgrade later.</p>
+      <div class="opts">${TIERS.map((d, i) => `<button class="opt" data-act="pickTier" data-i="${i}" aria-pressed="${D.tier === i}"><span class="tubes" aria-hidden="true">${'<i></i>'.repeat(d.slots)}</span><b>${d.short}</b><span>${d.cap}</span>
+        <dl><dt>Bioreactors</dt><dd>${d.slots}</dd><dt>Unlock</dt><dd>${d.unlock ? fmtTok(d.unlock) : 'Free'}</dd></dl></button>`).join('')}</div>
+      <p class="note">${D.tier === 0 ? 'A Petri Lab can sequence and launch genesis organisms, but replication needs a Genome Lab or higher.' : 'Replication creates new projects, not guaranteed profits.'}</p>
+    </div>
+  </section>
+  <section class="panel step">
+    <h2 class="ph"><b>Step 2</b> <small>${fmtSol(fee)} SOL to deploy</small></h2>
+    <div class="pad"><h3>Deploy lab #${Math.min(n, CFG.SUPPLY)}</h3>
+      <p>Half the price buys and burns $REPLICATE, half funds operations. The tier unlock is burned. Your first organism starts incubating as soon as the lab is online.</p>
+      ${!W.addr ? `<button class="btn dark" data-act="wallet">Connect wallet to deploy</button>`
+        : `<button class="btn dark" data-act="deploy" ${can ? '' : 'disabled'}>Deploy ${tr.name}</button>${shortSol ? `<p class="warn" style="margin:12px 0 0">Not enough SOL in your wallet.</p>` : ''}${shortR ? `<p class="warn" style="margin:12px 0 0">You need ${fmtTok(tr.unlock)} $REPLICATE for a ${tr.name}.</p>` : ''}`}
+    </div>
+  </section></div>
+  <aside class="col">
+    <section class="panel"><h2 class="ph">${ICO.deploy} You get <small>after step 2</small></h2>
+      <div class="youget">${labArt({ tier: D.tier, inc: [1], live: 0 })}<div><b>${tr.short}</b><span>${tr.name}<br>${tr.slots} bioreactor${tr.slots > 1 ? 's' : ''}</span></div></div>
+    </section>
+    <section class="panel"><h2 class="ph">${ICO.coin} Summary <small>what moves</small></h2>
+      <div class="rows">
+        ${kv('Deploy price', fmtSol(fee) + ' SOL')}
+        ${kv('Tier unlock (burned)', tr.unlock ? fmtTok(tr.unlock) + ' $REPLICATE' : 'Free')}
+        ${kv('Your share of fees', '60%')}
+        ${kv('Lineage share from offspring', D.tier >= 4 ? '15%' : '10%')}
+        ${kv('Wallet $REPLICATE', fmtTok(S.wal.rep))}
+      </div>
+    </section>
+  </aside></div>`;
+}
+
+function orgCard(c, mode){
+  const l = lById.get(c.lab), fl = freeLab(1), canRep = mode === 'mine' && c.alive && c.kids < c.genes.rep && fl;
+  const status = c.grad ? 'Graduated' : c.alive ? 'Trading' : 'Quiet';
+  return `<div class="org"><div class="top2">${ICO.dna}<div><h4>$${esc(c.tick)}</h4><span class="st">${c.gen ? 'Gen ' + c.gen : 'Genesis'} · ${status}${c.lic && mode === 'mine' ? ' · licensed out' : ''}</span></div></div>
+    ${genesHTML(c.genes)}
+    <dl><dt>Lab</dt><dd>#${c.lab}</dd><dt>Fees so far</dt><dd>${fmtSol(c.fees)} SOL</dd><dt>Offspring</dt><dd>${c.kids} / ${c.genes.rep}</dd>${c.lineage ? `<dt>Lineage earned</dt><dd>${fmtSol(c.lineage)} SOL</dd>` : ''}${mode === 'bank' ? `<dt>License</dt><dd>${fmtTok(c.lic)} $REP</dd>` : ''}</dl>
+    ${mode === 'mine' && c.alive && c.kids < c.genes.rep && !fl ? `<p class="small" style="margin:0 0 8px">${opLabs().some(l => l.tier >= 1) ? 'All bioreactors are busy. Replicate when one frees up.' : 'Replication needs a Genome Lab or higher.'}</p>` : ''}<div class="btns">${mode === 'mine'
+      ? `${c.alive && c.kids < c.genes.rep ? `<button class="btn sm green" data-act="replicate" data-c="${c.id}" ${canRep && S.wal.rep >= CFG.REPL_COST ? '' : 'disabled'} title="${fl ? '' : 'Needs a free bioreactor in a Genome Lab or higher'}">Replicate · ${fmtTok(CFG.REPL_COST)}</button>` : ''}${c.alive && c.kids < c.genes.rep ? (c.lic ? `<button class="btn sm" data-act="unlic" data-c="${c.id}">Stop licensing</button>` : `<button class="btn sm" data-act="licOpen" data-c="${c.id}">License out</button>`) : ''}`
+      : !W.addr ? `<button class="btn sm" data-act="wallet">Connect wallet</button>` : `<button class="btn sm green" data-act="license" data-c="${c.id}" ${freeLab(0) && S.wal.rep >= c.lic ? '' : 'disabled'} title="${freeLab(0) ? '' : 'Needs a free bioreactor'}">License · ${fmtTok(c.lic)}</button>`}</div></div>`;
+}
+function upRow(l, k){
+  const u = UP[k], lv = l[k], max = lv >= u.max, cost = u.cost(lv);
+  return `<div class="up"><b>${u.name}<span class="pips">${Array.from({ length: u.max }, (_, i) => `<i class="${i < lv ? 'on' : ''}"></i>`).join('')}</span></b><small>${max ? 'Maxed out' : u.eff}</small><button class="btn sm" data-act="upgrade" data-id="${l.id}" data-k="${k}" ${max || S.wal.rep < cost ? 'disabled' : ''}>${max ? 'Maxed' : 'Upgrade · ' + fmtTok(cost)}</button></div>`;
+}
+function reactorsHTML(l){
+  const live = S.coins.filter(c => c.lab === l.id && c.alive);
+  return `<div class="reactors">${Array.from({ length: slotsOf(l) }, (_, i) => {
+    const sp = l.inc[i];
+    if (sp) { const p = clamp((S.t - sp.t0) / (sp.ready - sp.t0), 0, 1); return `<div class="rx"><b>Bioreactor ${i + 1}</b><div class="vial" aria-hidden="true"><i style="height:${(p * 100).toFixed(0)}%"></i></div><small>Incubating $${esc(sp.tick)}${sp.gen ? ` (gen ${sp.gen})` : ''} · ready in <span data-k="left:${sp.ready}">${left(sp.ready)}</span></small></div>`; }
+    const c = live[i - l.inc.length];
+    if (c) return `<div class="rx"><b>Bioreactor ${i + 1}</b><div class="vial" aria-hidden="true"><i style="height:100%"></i></div><small>$${esc(c.tick)} trading</small></div>`;
+    return `<div class="rx idle"><b>Bioreactor ${i + 1}</b><div class="vial" aria-hidden="true"></div><small>Empty</small>${l.user || isRenting(l) ? `<div class="btns" style="margin-top:6px"><button class="btn sm" data-act="sequence" data-id="${l.id}">Sequence DNA</button></div>` : ''}</div>`;
+  }).join('')}</div>`;
+}
+function vLab(){
+  if (!W.addr) return `<section class="panel"><h2 class="ph">${ICO.mine} My lab</h2>
+    <div class="empty">${labTile()}<span>Connect a wallet to see your labs and organisms.</span><button class="btn green" data-act="wallet">Connect wallet</button></div></section>`;
+  const labs = myLabs(), rented = myRent(), orgs = myOrgs().sort((a, b) => b.alive - a.alive || b.t0 - a.t0).slice(0, 24);
+  return `<section class="panel"><h2 class="ph">${ICO.mine} My lab <small>fees and lineage shares wait until you collect them</small></h2>
+    <div class="kv5">
+      <div><label>Labs</label><b>${labs.length}${rented.length ? ' + ' + rented.length + ' rented' : ''}</b></div>
+      <div><label>Organisms trading</label><b>${orgs.filter(c => c.alive).length}</b></div>
+      <div><label>Incubating</label><b>${opLabs().reduce((a, l) => a + l.inc.length, 0)}</b></div>
+      <div><label>Ready to collect</label><b class="g" data-k="myUn">${LIVE.myUn()}</b></div>
+      <div><label>$REPLICATE</label><b>${fmtTok(S.wal.rep)}</b></div>
+    </div>
+    <div class="actions">
+      <button class="btn green" data-act="claimAll" data-k="claimAll">${LIVE.claimAll()}</button>
+      <button class="btn" data-go="bank">Gene bank</button>
+      <button class="btn" data-go="deploy">Deploy a biolab</button>
+      <button class="btn" data-act="buyRep" ${S.wal.sol < 1 ? 'disabled' : ''}>Swap 1 SOL for $REPLICATE</button>
+    </div>
+  </section>
+  ${[...labs, ...rented].length ? `<section class="panel mt"><h2 class="ph">${ICO.biolab} Your labs</h2>
+    ${[...labs, ...rented].map(l => { const nx = TIERS[l.tier + 1], mine = isMine(l);
+      return `<div class="labrow"><div class="lhead"><div>${labArt(l)}</div>
+      <div><h3>Lab #${l.id} <span class="tag ghost">${TIERS[l.tier].name}</span>${isRenting(l) ? `<span class="tag green">Rented, ${left(l.rent.until)} left</span>` : ''}</h3>
+        <div class="stats"><div><label>Bioreactors in use</label><b>${l.inc.length + l.live} / ${slotsOf(l)}</b></div><div><label>Organisms launched</label><b>${l.count}</b></div><div><label>${mine ? 'Ready to collect' : 'Your share'}</label><b data-k="${mine ? 'un' : 'rentUn'}:${l.id}">${mine ? LIVE.un(l.id) : LIVE.rentUn(l.id)}</b></div><div><label>Lineage income</label><b data-k="line:${l.id}">${LIVE.line(l.id)}</b></div></div>
+        ${mine ? `<div class="btns"><button class="btn sm green" data-act="claim" data-id="${l.id}">Collect</button></div>` : ''}</div>
+      <div>${mine ? `<div class="rentbox">${l.rent ? `<b>Rented out</b><p>To ${short(l.rent.who)} for ${left(l.rent.until)} more. They keep ${Math.round(l.rent.share * 100)}% of the operator share.</p>`
+          : l.list ? `<b>Listed for rent</b><p>${fmtTok(l.list.price)} $REPLICATE an hour, researcher keeps ${Math.round(l.list.share * 100)}%.</p><div class="btns"><button class="btn sm" data-act="listOpen" data-id="${l.id}">Edit</button><button class="btn sm" data-act="unlist" data-id="${l.id}">Unlist</button></div>`
+          : `<b>Not listed</b><p>Lease your bioreactors to researchers for $REPLICATE and a share of creator fees.</p><button class="btn sm green" data-act="listOpen" data-id="${l.id}">List for rent</button>`}</div>
+        <div class="up"><b>Auto-sequence</b><small>${l.auto !== false ? 'Starts a new genesis organism whenever a bioreactor is free.' : 'Off: you start each one.'}</small><div class="seg"><button class="chip" data-act="setAuto" data-id="${l.id}" data-v="1" aria-pressed="${l.auto !== false}">On</button><button class="chip" data-act="setAuto" data-id="${l.id}" data-v="0" aria-pressed="${l.auto === false}">Off</button></div></div>
+        ${nx ? `<div class="up"><b>Upgrade to ${nx.name}</b><small>${nx.slots} bioreactors · ${nx.cap.toLowerCase()}</small><button class="btn sm" data-act="tierUp" data-id="${l.id}" ${S.wal.rep < nx.unlock - TIERS[l.tier].unlock ? 'disabled' : ''}>Unlock · ${fmtTok(nx.unlock - TIERS[l.tier].unlock)}</button></div>` : ''}
+        ${upRow(l, 'splice')}${upRow(l, 'incub')}` : `<p class="small" style="margin:0">Owner ${short(l.owner)} keeps the rest of the operator share and the rental payment. Organisms you launch here are yours to replicate.</p>`}</div></div>
+      ${reactorsHTML(l)}</div>`; }).join('')}
+  </section>` : ''}
+  <section class="panel mt"><h2 class="ph">${ICO.dna} Your organisms <small>replicate the ones that work</small></h2>
+    ${orgs.length ? `<div class="orgs">${orgs.map(c => orgCard(c, 'mine')).join('')}</div>` : `<div class="empty">${labTile()}<span>${labs.length || rented.length ? 'Your first organism is incubating.' : 'Deploy a biolab and its first organism starts incubating right away.'}</span>${labs.length || rented.length ? '' : '<button class="btn sm green" data-go="deploy">Deploy a biolab</button>'}</div>`}
+  </section>`;
+}
+
+function vBank(){
+  const list = S.coins.filter(c => c.lic && !c.user && c.alive).sort((a, b) => b.fees / b.lic - a.fees / a.lic);
+  return `<section class="panel"><h2 class="ph">${ICO.bank} Gene bank <small>genetic licensing · ${list.length} blueprints available</small></h2>
+    <div class="pbody"><p>Labs license out the blueprints of organisms that are working. Licensing one creates an offspring in your own bioreactor: it inherits the parent’s genes with mutations, partly inherits its momentum, and pays the parent’s lab a lineage share of its creator fees. A Synthetic Lab or higher adds +1 intelligence to licensed offspring.</p></div>
+    ${list.length ? `<div class="orgs" style="border-top:1px solid var(--rule)">${list.map(c => orgCard(c, 'bank')).join('')}</div>` : `<div class="empty">${labTile()}<span>No blueprints available right now.</span></div>`}
+    <p class="small" style="margin:0;padding:12px 18px;border-top:1px solid var(--rule)">License your own organisms out from My lab. Each license payment burns 10%.</p>
+  </section>`;
+}
+
+function vRentals(){
+  const d = DURS[M.dur], list = S.labs.filter(l => l.list);
+  list.sort((a, b) => (!!a.rent - !!b.rent) || (M.sort === 'price' ? a.list.price - b.list.price : M.sort === 'tier' ? b.tier - a.tier : (b.list.share * hourly(b) / b.list.price) - (a.list.share * hourly(a) / a.list.price)));
+  const segb = (key, val, label) => `<button class="chip" data-act="m" data-key="${key}" data-val="${val}" aria-pressed="${String(M[key]) === String(val)}">${label}</button>`;
+  return `<section class="panel"><h2 class="ph">${ICO.rent} Biolabs for rent <small>${list.length} listed · engineer organisms without buying a lab</small></h2>
+    <div class="filters">
+      <div class="seg"><span>Rent for</span>${DURS.map((x, i) => segb('dur', i, x.name + (x.off ? ` (−${x.off * 100}%)` : ''))).join('')}</div>
+      <div class="seg"><span>Sort</span>${segb('sort','value','Best value')}${segb('sort','tier','Biggest')}${segb('sort','price','Price')}</div>
+    </div>
+    ${list.length ? `<div class="lists">${list.map(l => { const cost = l.list.price * d.h * (1 - d.off), mine = isMine(l);
+      return `<div class="lcard">${labArt(l)}<div><h4>#${l.id}${mine ? '<span class="tag green">Yours</span>' : ''}</h4>
+        <dl><dt>Lab</dt><dd>${TIERS[l.tier].name}</dd><dt>Bioreactors</dt><dd>${slotsOf(l)}</dd><dt>Revenue</dt><dd>${fmtSol(hourly(l))} SOL/h</dd><dt>Researcher keeps</dt><dd>${Math.round(l.list.share * 100)}%</dd><dt>Price</dt><dd>${fmtTok(l.list.price)} /h</dd></dl>
+        ${l.rent ? `<button class="btn sm" disabled>Rented, back in ${left(l.rent.until)}</button>` : mine ? `<button class="btn sm" data-go="lab">Manage listing</button>`
+          : !W.addr ? `<button class="btn sm" data-act="wallet">Connect wallet</button>`
+          : `<button class="btn sm green" data-act="rent" data-id="${l.id}" ${S.wal.rep < cost ? 'disabled' : ''}>Rent ${d.name} · ${fmtTok(cost)}</button>`}
+      </div></div>`; }).join('')}</div>` : `<div class="empty">${labTile()}<span>No labs listed right now.</span></div>`}
+  </section>`;
+}
+function listModal(id){
+  const l = lById.get(+id); if (!isMine(l)) return;
+  if (LST.id !== l.id) { LST.id = l.id; LST.share = l.list ? l.list.share : 0.7; LST.mult = 1; }
+  const p = r50(fair(l, LST.share) * LST.mult);
+  modal(`<section class="panel modal" role="dialog" aria-modal="true" aria-labelledby="lt">
+    <h2 class="ph" id="lt">${ICO.rent} List lab #${l.id} for rent <button class="x" data-act="close" aria-label="Close">×</button></h2>
+    <div class="pad">
+      <label>Researcher keeps</label>
+      <div class="seg" style="margin-bottom:16px">${[0.5,0.6,0.7,0.8].map(s => `<button class="chip" data-act="lsShare" data-v="${s}" aria-pressed="${LST.share === s}">${s * 100}%</button>`).join('')}</div>
+      <label>Hourly price</label>
+      <div class="seg" style="margin-bottom:16px">${[[0.8,'Fill fast'],[1,'Suggested'],[1.3,'Premium']].map(([m, t]) => `<button class="chip" data-act="lsMult" data-v="${m}" aria-pressed="${LST.mult === m}">${t}</button>`).join('')}</div>
+      <div class="rows" style="border:1px solid var(--rule);margin-bottom:16px">${kv('Price per hour', fmtTok(p) + ' $REPLICATE')}${kv('You receive', '90% of each payment, plus your fee share')}${kv('Burned', '10% of each payment')}</div>
+      <button class="btn green wide" data-act="listSave" data-id="${l.id}" data-p="${p}">${l.list ? 'Update listing' : 'List lab #' + l.id}</button>
+    </div></section>`);
+}
+function licModal(id){
+  const c = cById.get(+id); if (!c) return;
+  if (LIC.id !== c.id) { LIC.id = c.id; LIC.mult = 1; }
+  const p = r50((3000 + c.fees * 30000) * LIC.mult);
+  modal(`<section class="panel modal" role="dialog" aria-modal="true" aria-labelledby="lc">
+    <h2 class="ph" id="lc">${ICO.bank} License out $${esc(c.tick)} <button class="x" data-act="close" aria-label="Close">×</button></h2>
+    <div class="pad"><p class="small" style="margin:0 0 14px">Each license lets another lab grow one offspring of this organism. You receive the license fee, and your lab earns a lineage share of every licensed offspring’s creator fees. It can produce ${c.genes.rep - c.kids} more offspring.</p>
+      <label>License fee</label>
+      <div class="seg" style="margin-bottom:16px">${[[0.8,'Popular'],[1,'Suggested'],[1.3,'Premium']].map(([m, t]) => `<button class="chip" data-act="licMult" data-v="${m}" aria-pressed="${LIC.mult === m}">${t}</button>`).join('')}</div>
+      <div class="rows" style="border:1px solid var(--rule);margin-bottom:16px">${kv('Per license', fmtTok(p) + ' $REPLICATE')}${kv('You receive', fmtTok(p * 0.9) + ' + lineage share')}${kv('Burned', '10%')}</div>
+      <button class="btn green wide" data-act="licSave" data-c="${c.id}" data-p="${p}">License out $${esc(c.tick)}</button>
+    </div></section>`);
+}
+
+function vHow(){
+  const sq = Array.from({ length: 100 }, (_, i) => `<i class="${i < 60 ? 'sq-a' : i < 85 ? 'sq-b' : 'sq-c'}"></i>`).join('');
+  return `<section class="panel"><h2 class="ph">${ICO.how} How it works <small>every biolab is an autonomous genetic engineering facility</small></h2>${stepsHTML()}</section>
+  <section class="panel mt"><h2 class="ph">${ICO.tree} The replication tree</h2>
+    <div class="tree-how">
+      <div>${ICO.dna}<b>Genesis organism</b><span>An original coin with its own genetic blueprint.</span></div>
+      <div>${ICO.tree}<b>Mutations</b><span>Each offspring inherits the parent’s genes, mutated, and launches as a new coin.</span><div class="muts"><div><b>Mutation A</b>New coin</div><div><b>Mutation B</b>New coin</div><div><b>Mutation C</b>New coin</div></div></div>
+      <div>${ICO.coin}<b>Replicated ecosystem</b><span>Offspring earn their own creator fees and pay the parent’s lab a lineage share.</span></div>
+    </div>
+    <p class="note" style="margin:16px 18px 18px">Parent labs receive 10% of each offspring’s operator share, or 15% for a Genesis Lab. Replication creates new projects, not guaranteed profits.</p>
+  </section>
+  <div class="two mt">
+    <section class="panel"><h2 class="ph">${ICO.dna} Genetic traits</h2>
+      <div class="tw"><table><thead><tr><th>Gene</th><th>Function</th><th>Effect</th></tr></thead><tbody>${GENES.map(g => `<tr><td><b>${g.name}</b></td><td>${g.fn}</td><td>${g.eff}</td></tr>`).join('')}</tbody></table></div>
+    </section>
+    <section class="panel"><h2 class="ph">${ICO.biolab} Biolab tiers</h2>
+      <div class="tw"><table><thead><tr><th>Laboratory</th><th>Capability</th><th class="r">Bioreactors</th></tr></thead><tbody>${TIERS.map(t => `<tr><td><b>${t.name}</b></td><td>${t.cap}</td><td class="r">${t.slots}</td></tr>`).join('')}</tbody></table></div>
+    </section>
+  </div>
+  <section class="panel mt"><h2 class="ph">${ICO.coin} Where every creator fee goes <small>100 squares, one per percent</small></h2>
+    <div class="split"><div class="squares" aria-hidden="true">${sq}</div></div>
+    <div class="splitkeys">
+      <div><span class="k"><i class="sq-a"></i>The lab</span><b>60%</b><p>Its operator, less the lineage share owed to a parent organism’s lab.</p></div>
+      <div><span class="k"><i class="sq-b"></i>Buy and burn</span><b>25%</b><p>A defined portion that funds $REPLICATE buybacks and burns.</p></div>
+      <div><span class="k"><i class="sq-c"></i>Operations</span><b>15%</b><p>Pays for the AI agents and the keeper.</p></div>
+    </div>
+  </section>
+  <section class="panel mt"><h2 class="ph">${ICO.rent} Rentals and genetic licensing</h2>
+    <div class="pbody"><p>Lab owners lease bioreactors to researchers for $REPLICATE and an agreed share of creator fees; 90% of each payment goes to the owner and 10% is burned. Organisms launched during a rental belong to the researcher.</p>
+    <p>Labs can license the blueprints of successful organisms to other labs. Each license grows one offspring elsewhere, and its parent keeps earning a lineage share.</p></div>
+  </section>
+  <section class="panel mt"><h2 class="ph">${ICO.biolab} The flywheel</h2>
+    <div class="flyline"><span>More biolabs deployed</span><i>→</i><span>More organisms engineered</span><i>→</i><span>More coins launched</span><i>→</i><span>More creator fees</span><i>→</i><span>More blueprints licensed</span><i>→</i><span>More $REPLICATE spent</span><i>→</i><span class="hot">Buybacks and burns</span></div>
+    <p class="note" style="margin:0 18px 18px">A defined portion of actual protocol revenue can fund buybacks, while the rest supports lab owners and operations.</p>
+  </section>`;
+}
+
+const DOCS = [
+  ['overview','Overview', () => `<p>Replicate is a Solana launchpad of autonomous biolabs. Each <strong>biolab</strong> is an NFT that sequences narratives into genetic blueprints, engineers digital organisms, incubates them in bioreactors and launches each one as a coin on pump.fun with the lab as creator. 60% of each coin’s creator fees goes to the lab.</p>`],
+  ['deploying','Deploying', () => `<p>The deploy price rises evenly from 0.25 SOL for #1 to 1.25 SOL for #1,000: <code>0.25 + 1.0 × (n − 1) / 999</code>. Half buys and burns $REPLICATE, half funds operations. Tier unlocks are paid in $REPLICATE and burned.</p>`],
+  ['organisms','Organisms and genes', () => `<div class="tw"><table><thead><tr><th>Gene</th><th>Effect per level</th></tr></thead><tbody>${GENES.map(g => `<tr><td><strong>${g.name}</strong></td><td>${g.eff}</td></tr>`).join('')}</tbody></table></div>
+    <p>Genesis organisms get random genes from 1 to 3, raised by the gene splicer. Incubation takes about ${CFG.INC_H} hours, shortened by the efficiency gene and the incubator upgrade.</p>
+    <h4>Launch rules</h4><ul><li>No real people’s names or likeness, and no implied endorsement.</li><li>No existing brands, and no ticker that is already live on pump.fun.</li><li>No promises of returns, in the coin or from its AI agent.</li><li>Every coin description says which lab engineered it.</li></ul>`],
+  ['replication','Replication', () => `<p>A Genome Lab or higher can replicate any of its trading organisms, up to its replication gene in offspring. Replication costs ${fmtTok(CFG.REPL_COST)} $REPLICATE, which is burned. The offspring inherits its parent’s genes with mutations, partly inherits its momentum, and incubates before launching as a new coin. The parent’s lab receives 10% of the offspring’s operator share, or 15% for a Genesis Lab.</p>`],
+  ['licensing','Genetic licensing', () => `<p>Labs can license out an organism’s blueprint for a fee per offspring. Each license grows one offspring in the licensee’s bioreactor, which pays the parent’s lab a lineage share. 10% of every license fee is burned.</p>`],
+  ['fees','Fees', () => `<div class="tw"><table><thead><tr><th>To</th><th class="r">Share</th></tr></thead><tbody><tr><td>The lab’s operator, less any lineage share</td><td class="r">60%</td></tr><tr><td>$REPLICATE buy and burn</td><td class="r">25%</td></tr><tr><td>Operations</td><td class="r">15%</td></tr></tbody></table></div>`],
+  ['rentals','Rentals', () => `<p>Owners list labs by the hour, day or week, priced in $REPLICATE, and choose the researcher’s share of the operator fees: 50% to 80%. A day is 10% cheaper per hour, a week 25% cheaper. Each payment settles when the rental starts: 90% to the owner, 10% burned.</p>`],
+  ['faq','FAQ', () => [
+      ['Who is the creator of the coins?','The lab. Its address is set as the coin’s creator on pump.fun, and the fee split is locked in the same transaction.'],
+      ['Does replicating a winner guarantee another winner?','No. Offspring partly inherit their parent’s momentum, but each is its own coin with its own odds.'],
+      ['What happens to lineage income if I sell my lab?','It goes with the lab, along with its organisms, history and unclaimed fees.']
+    ].map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join('')],
+  ['risks','Risks', () => `<ul><li>Most coins on pump.fun stop trading within days. Organisms that go quiet stop earning, and so do their lineage shares.</li>
+    <li>Replication creates new projects, not guaranteed profits.</li>
+    <li>pump.fun can change its fee rates or creator fee program at any time.</li>
+    <li>Smart contracts and autonomous agents can have bugs even after testing.</li></ul>`]
+];
+function vDocs(){
+  return `<div class="docs"><nav class="panel toc" aria-label="Docs contents"><h2 class="ph">${ICO.docs} Docs <small>contents</small></h2>
+    <ol>${DOCS.map((d, i) => `<li><button data-act="docjump" data-id="${d[0]}"><span>${pad2(i + 1)}</span>${d[1]}</button></li>`).join('')}</ol></nav>
+    <div class="col">${DOCS.map(d => `<section class="panel doc" id="doc-${d[0]}"><h2 class="ph">${d[1]}</h2><div class="body">${d[2]()}</div></section>`).join('')}</div></div>`;
+}
+
+/* ---------- render ---------- */
+let lastVer = -1, lastTab = '', lastRender = 0;
+const VIEWS = { biolab: vBiolab, deploy: vDeploy, lab: vLab, bank: vBank, rentals: vRentals, how: vHow, docs: vDocs };
+function render(force){
+  const now = performance.now();
+  const dynamic = !(tab === 'how' || tab === 'docs');
+  if (!force && tab === lastTab && (!dynamic || S.ver === lastVer || now - lastRender < 1500)) {
+    if (tab !== 'lab' || now - lastRender < 4000) return;
+  }
+  lastVer = S.ver; lastTab = tab; lastRender = now;
+  const y = window.scrollY;
+  $('#view').innerHTML = VIEWS[tab]();
+  window.scrollTo(0, y);
+}
+function paintTabs(){ $('#tabs').innerHTML = TABS.map(([k, label, icon], i) => `<a href="#${k}"${tab === k ? ' aria-current="page"' : ''}>${icon}<span>${label}</span><em>${i + 1}</em></a>`).join(''); }
+function updateLive(){ document.querySelectorAll('[data-k]').forEach(el => { const [k, a] = el.dataset.k.split(':'); const f = LIVE[k]; if (!f) return; const v = f(a); if (el.textContent !== v) el.textContent = v; }); }
+function route(){ const h = location.hash.replace('#', ''); tab = VIEWS[h] ? h : 'biolab'; paintTabs(); render(true); updateLive(); }
+
+/* ---------- overlays ---------- */
+let lastFocus = null;
+function modal(html){ if (!$('#overlay').innerHTML) lastFocus = document.activeElement; $('#overlay').innerHTML = `<div class="scrim" data-act="scrim">${html}</div>`; const f = $('#overlay').querySelector('[aria-pressed="true"],button,a'); f && f.focus(); }
+function closeModal(){ $('#overlay').innerHTML = ''; LST.id = 0; LIC.id = 0; lastFocus && lastFocus.focus && lastFocus.focus(); }
+function toast(msg){ const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; const box = $('#toasts'); box.appendChild(t); while (box.children.length > 3) box.firstChild.remove(); setTimeout(() => t.remove(), 3800); }
+
+/* ---------- actions ---------- */
+const after = () => { S.ver++; render(true); updateLive(); };
+document.addEventListener('click', async ev => {
+  const go = ev.target.closest('[data-go]');
+  if (go) { if ($('#overlay').innerHTML) closeModal(); location.hash = '#' + go.dataset.go; return; }
+  const a = ev.target.closest('[data-act]');
+  if (!a) { if (!ev.target.closest('.walletcell')) $('#walletMenu').hidden = true; return; }
+  const act = a.dataset.act;
+  if (act === 'scrim') { if (ev.target === a) closeModal(); return; }
+  switch (act) {
+    case 'close': closeModal(); break;
+    case 'wallet':
+      if (W.addr && a.id === 'walletBtn') { const m = $('#walletMenu'); paintWallet(); m.hidden = !m.hidden; }
+      else openWalletModal();
+      break;
+    case 'pickWallet': {
+      const entry = W.list[+a.dataset.i];
+      a.disabled = true; const em = a.querySelector('em'); if (em) em.textContent = 'Approve in wallet…';
+      try { await connectEntry(entry, false); closeModal(); toast(`Connected ${short(W.addr)}`); }
+      catch (err) { a.disabled = false; if (em) em.textContent = 'Detected'; toast(err && err.message && /reject|denied|cancel/i.test(err.message) ? 'Connection request was declined in the wallet.' : 'Couldn’t connect. Unlock the wallet and try again.'); }
+      break; }
+    case 'guestWallet': setWallet(randAddr(Math.random), null); closeModal(); toast('Connected as guest'); break;
+    case 'disconnect': clearWallet(); toast('Wallet disconnected'); break;
+    case 'copyAddr': try { await navigator.clipboard.writeText(W.addr); toast('Address copied'); } catch (e) { toast(W.addr); } break;
+    case 'pickTier': D.tier = +a.dataset.i; render(true); break;
+    case 'deploy': {
+      const n = S.labs.length + 1, fee = mintPrice(n), tr = TIERS[D.tier]; if (!W.addr || n > CFG.SUPPLY || S.wal.sol < fee || S.wal.rep < tr.unlock) break;
+      S.wal.sol -= fee; S.wal.rep -= tr.unlock; S.burnSol += fee * 0.5; S.burned += fee * 0.5 / price() + tr.unlock; S.ops += fee * 0.5;
+      const l = { id: n, owner: W.addr, user: true, tier: D.tier, splice: 1, incub: 1, auto: true, inc: [], live: 0, count: 0, unclaimed: 0, lineUn: 0, rentUn: 0, own: 0, life: 0, rv: 0, list: null, rent: null, t: S.t };
+      S.labs.push(l); lById.set(l.id, l);
+      const sp = sequence(l); sp.ready = S.t + Math.min(sp.ready - S.t, 40 * 60);
+      save(); toast(`Lab #${n} is online. Its first organism, $${sp.tick}, is incubating.`); location.hash = '#lab'; after(); break; }
+    case 'sequence': { const l = lById.get(+a.dataset.id); if (!(isMine(l) || isRenting(l)) || l.inc.length + l.live >= slotsOf(l)) break; const sp = sequence(l); toast(`Sequencing $${sp.tick}`); after(); break; }
+    case 'replicate': { const c = cById.get(+a.dataset.c), l = freeLab(1); if (!c || !l || !c.alive || c.kids >= c.genes.rep || S.wal.rep < CFG.REPL_COST) break; S.wal.rep -= CFG.REPL_COST; S.burned += CFG.REPL_COST; const sp = replicate(l, c); toast(`Replicating $${c.tick} into $${sp.tick} in lab #${l.id}`); after(); break; }
+    case 'license': { const c = cById.get(+a.dataset.c), l = freeLab(0); if (!c || !l || !c.lic || S.wal.rep < c.lic || c.kids >= c.genes.rep) break; S.wal.rep -= c.lic; S.burned += c.lic * CFG.LIC_BURN; const sp = replicate(l, c, l.tier >= 2 ? 1 : 0); toast(`Licensed $${c.tick}. Offspring $${sp.tick} is incubating in lab #${l.id}.`); after(); break; }
+    case 'licOpen': LIC.id = 0; licModal(a.dataset.c); break;
+    case 'licMult': LIC.mult = +a.dataset.v; licModal(LIC.id); break;
+    case 'licSave': { const c = cById.get(+a.dataset.c); if (!c) break; c.lic = +a.dataset.p; closeModal(); toast(`$${c.tick} is in the gene bank at ${fmtTok(c.lic)} $REPLICATE per license`); after(); break; }
+    case 'unlic': { const c = cById.get(+a.dataset.c); if (!c) break; c.lic = 0; after(); break; }
+    case 'setAuto': { const l = lById.get(+a.dataset.id); if (!isMine(l)) break; l.auto = a.dataset.v === '1'; after(); break; }
+    case 'claim': { const l = lById.get(+a.dataset.id); if (!isMine(l)) break; const v = l.unclaimed + l.lineUn; S.wal.sol += v; l.unclaimed = 0; l.lineUn = 0; toast(v > 0 ? `Collected ${fmtSol(v)} SOL` : 'Nothing to collect yet'); after(); break; }
+    case 'claimAll': { let v = 0; for (const l of myLabs()) { v += l.unclaimed + l.lineUn; l.unclaimed = 0; l.lineUn = 0; } for (const l of myRent()) { v += l.rentUn; l.rentUn = 0; } S.wal.sol += v; toast(v > 0 ? `Collected ${fmtSol(v)} SOL` : 'Nothing to collect yet'); after(); break; }
+    case 'buyRep': if (S.wal.sol >= 1) { const t = 1 / price(); S.wal.sol -= 1; S.wal.rep += t; toast(`Swapped 1 SOL for ${fmtTok(t)} $REPLICATE`); after(); } break;
+    case 'upgrade': { const l = lById.get(+a.dataset.id), k = a.dataset.k; if (!isMine(l) || l[k] >= UP[k].max) break; const c = UP[k].cost(l[k]); if (S.wal.rep < c) break; S.wal.rep -= c; S.burned += c; l[k]++; toast(`${UP[k].name} is now level ${l[k]}. ${fmtTok(c)} $REPLICATE burned.`); after(); break; }
+    case 'tierUp': { const l = lById.get(+a.dataset.id); if (!isMine(l) || l.tier >= 4) break; const c = TIERS[l.tier + 1].unlock - TIERS[l.tier].unlock; if (S.wal.rep < c) break; S.wal.rep -= c; S.burned += c; l.tier++; toast(`Lab #${l.id} is now a ${TIERS[l.tier].name}. ${fmtTok(c)} $REPLICATE burned.`); after(); break; }
+    case 'm': M[a.dataset.key] = a.dataset.key === 'dur' ? +a.dataset.val : a.dataset.val; render(true); break;
+    case 'listOpen': LST.id = 0; listModal(a.dataset.id); break;
+    case 'lsShare': LST.share = +a.dataset.v; listModal(LST.id); break;
+    case 'lsMult': LST.mult = +a.dataset.v; listModal(LST.id); break;
+    case 'listSave': { const l = lById.get(+a.dataset.id); if (!isMine(l)) break; l.list = { share: LST.share, price: +a.dataset.p, k: LST.mult }; closeModal(); toast(`Lab #${l.id} listed at ${fmtTok(l.list.price)} $REPLICATE an hour`); after(); break; }
+    case 'unlist': { const l = lById.get(+a.dataset.id); if (!isMine(l)) break; l.list = null; after(); break; }
+    case 'rent': {
+      const l = lById.get(+a.dataset.id), d = DURS[M.dur]; if (!W.addr || !l || !l.list || l.rent || isMine(l)) break;
+      const cost = l.list.price * d.h * (1 - d.off); if (S.wal.rep < cost) break;
+      S.wal.rep -= cost; startRent(l, W.addr, true, d.h, cost, l.list.share);
+      toast(`You’re running lab #${l.id} for ${d.name}. You keep ${Math.round(l.list.share * 100)}% of the operator share.`); location.hash = '#lab'; after(); break; }
+    case 'docjump': { const el = document.getElementById('doc-' + a.dataset.id); el && el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); break; }
+  }
+  if (act !== 'wallet' && !a.closest('#walletMenu')) $('#walletMenu').hidden = true;
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if ($('#overlay').innerHTML) closeModal(); $('#walletMenu').hidden = true; } });
+window.addEventListener('hashchange', route);
+
+/* ---------- boot ---------- */
+load();
+S.speed = 60;
+route();
+paintWallet();
+setTimeout(eagerConnect, 500);
+let lastTick = performance.now(), lastSave = 0;
+setInterval(() => {
+  const now = performance.now(), dt = Math.min(2, (now - lastTick) / 1000); lastTick = now;
+  if (S.speed > 0) advance(S.speed * dt / 60);
+  updateLive(); render(false);
+  if (now - lastSave > 5000) { save(); lastSave = now; }
+}, 250);
+window.addEventListener('pagehide', save);
+</script>
+</body>
+</html>
